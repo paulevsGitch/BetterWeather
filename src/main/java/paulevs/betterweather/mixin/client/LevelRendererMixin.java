@@ -9,13 +9,13 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import paulevs.betterweather.render.CloudArea;
+import paulevs.betterweather.render.CloudRenderer;
 
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
 	@Shadow private Minecraft minecraft;
 	
-	@Unique private CloudArea weather_cloudArea = new CloudArea();
+	@Unique private CloudRenderer weather_cloudArea = new CloudRenderer();
 	
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void betterweather_onInit(Minecraft minecraft, TextureManager manager, CallbackInfo info) {

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Random;
 
 @Environment(EnvType.CLIENT)
-public class CloudArea {
+public class CloudRenderer {
 	private static final ImageSampler MAIN_SHAPE_SAMPLER = new ImageSampler("assets/better_weather/textures/main_shape.png");
 	private static final ImageSampler LARGE_DETAILS_SAMPLER = new ImageSampler("assets/better_weather/textures/large_details.png");
 	private static final ImageSampler VARIATION_SAMPLER = new ImageSampler("assets/better_weather/textures/variation.png");
@@ -29,9 +29,10 @@ public class CloudArea {
 	private final float[] cloudShape = new float[16];
 	private final Vec2i[] offsets;
 	
-	private int cloudTexture = 0;
+	//private int cloudTexture = 0;
+	private CloudTexture cloudTexture;
 	
-	public CloudArea() {
+	public CloudRenderer() {
 		for (short i = 0; i < chunks.length; i++) {
 			chunks[i] = new CloudChunk();
 		}
@@ -60,8 +61,11 @@ public class CloudArea {
 	}
 	
 	public void update(TextureManager manager) {
-		if (cloudTexture == 0) {
+		/*if (cloudTexture == 0) {
 			cloudTexture = manager.getTextureId("/assets/better_weather/textures/cloud.png");
+		}*/
+		if (cloudTexture == null) {
+			cloudTexture = new CloudTexture(manager);
 		}
 	}
 	
@@ -84,7 +88,9 @@ public class CloudArea {
 		
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, cloudTexture);
+		//GL11.glBindTexture(GL11.GL_TEXTURE_2D, cloudTexture);
+		
+		cloudTexture.bindAndUpdate(minecraft.level.getSunPosition(delta));
 		
 		boolean canUpdate = true;
 		
@@ -115,6 +121,9 @@ public class CloudArea {
 		density -= VARIATION_SAMPLER.sample(y * 5, x * 5) * 0.05F;
 		density -= VARIATION_SAMPLER.sample(z * 5, y * 5) * 0.05F;
 		density -= VARIATION_SAMPLER.sample(z * 5, x * 5) * 0.05F;
+		
+		int value = (int) (MathHelper.hashCode(x, y, z) % 3);
+		density -= value * 0.01F;
 		
 		density -= cloudShape[y];
 		return density;
