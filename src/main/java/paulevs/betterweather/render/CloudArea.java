@@ -2,7 +2,6 @@ package paulevs.betterweather.render;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.tinyremapper.extension.mixin.common.data.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.maths.Vec2i;
@@ -21,7 +20,12 @@ public class CloudArea {
 	private static final byte[] CLOUD_DATA = new byte[4096];
 	private static final Random RANDOM = new Random(0);
 	
-	private final CloudChunk[] chunks = new CloudChunk[256];
+	private static final int RADIUS = 9;
+	private static final int SIDE = RADIUS * 2 + 1;
+	private static final int CAPACITY = SIDE * SIDE;
+	private static final double SPEED = 0.001; // Chunks per tick
+	
+	private final CloudChunk[] chunks = new CloudChunk[CAPACITY];
 	private final float[] cloudShape = new float[16];
 	private final Vec2i[] offsets;
 	
@@ -32,9 +36,9 @@ public class CloudArea {
 			chunks[i] = new CloudChunk();
 		}
 		
-		List<Vec2i> offsets = new ArrayList<>(2500);
-		for (byte x = -7; x < 7; x++) {
-			for (byte z = -7; z < 7; z++) {
+		List<Vec2i> offsets = new ArrayList<>(CAPACITY);
+		for (byte x = -RADIUS; x <= RADIUS; x++) {
+			for (byte z = -RADIUS; z <= RADIUS; z++) {
 				offsets.add(new Vec2i(x, z));
 			}
 		}
@@ -61,6 +65,10 @@ public class CloudArea {
 		}
 	}
 	
+	private int getIndex(int x, int y) {
+		return MathUtil.wrap(x, SIDE) * SIDE + MathUtil.wrap(y, SIDE);
+	}
+	
 	public void render(Minecraft minecraft, float delta) {
 		double entityX = MathHelper.lerp(delta, minecraft.viewEntity.prevRenderX, minecraft.viewEntity.x);
 		double entityY = MathHelper.lerp(delta, minecraft.viewEntity.prevRenderY, minecraft.viewEntity.y);
@@ -70,7 +78,7 @@ public class CloudArea {
 		int centerX = net.minecraft.util.maths.MathHelper.floor(entityX / 32);
 		int centerZ = net.minecraft.util.maths.MathHelper.floor(entityZ / 32);
 		
-		double moveDelta = ((double) minecraft.level.getLevelTime() + delta) / 100.0;
+		double moveDelta = ((double) minecraft.level.getLevelTime() + delta) * SPEED;
 		int worldOffset = (int) Math.floor(moveDelta);
 		entityZ -= (moveDelta - worldOffset) * 32;
 		
@@ -84,8 +92,7 @@ public class CloudArea {
 			int cx = centerX + offset.x;
 			int cz = centerZ + offset.z;
 			int movedZ = cz - worldOffset;
-			int index = (cx & 15) << 4 | (movedZ & 15);
-			CloudChunk chunk = chunks[index];
+			CloudChunk chunk = chunks[getIndex(cx, movedZ)];
 			chunk.setRenderPosition(cx, cz);
 			chunk.checkIfNeedUpdate(cx, movedZ);
 			if (canUpdate && chunk.needUpdate()) {
@@ -136,18 +143,13 @@ public class CloudArea {
 			
 			byte light = 15;
 			for (byte i = (byte) (y + 1); i < 15; i++) {
-				//if (getDensity(x, i, z - (i - y)) >= coverage) light--;
 				if (getDensity(x, i, z) >= coverage) light--;
 			}
 			
-			//density = VARIATION_SAMPLER.sample(x * 5, z * 5);
-			//light = (byte) MathHelper.clamp(light + density * 2 - 1, 0, 15);
 			RANDOM.setSeed(MathHelper.hashCode(x, y, z));
 			light = (byte) MathHelper.clamp(light + RANDOM.nextInt(3) - 1, 0, 15);
 			
 			CLOUD_DATA[index] = light;
-			//density = VARIATION_SAMPLER.sample(x * 3, z * 3);
-			//CLOUD_DATA[index] = (byte) (density * 127F + 0.5F);
 		}
 	}
 }

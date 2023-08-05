@@ -39,12 +39,12 @@ public class ImageSampler {
 	public float sample(double x, double z) {
 		int x1 = MathHelper.floor(x);
 		int z1 = MathHelper.floor(z);
-		int x2 = wrap(x1 + 1, width);
-		int z2 = wrap(z1 + 1, height);
+		int x2 = MathUtil.wrap(x1 + 1, width);
+		int z2 = MathUtil.wrap(z1 + 1, height);
 		float dx = (float) (x - x1);
 		float dz = (float) (z - z1);
-		x1 = wrap(x1, width);
-		z1 = wrap(z1, height);
+		x1 = MathUtil.wrap(x1, width);
+		z1 = MathUtil.wrap(z1, height);
 		
 		float a = data[getIndex(x1, z1)];
 		float b = data[getIndex(x2, z1)];
@@ -58,10 +58,5 @@ public class ImageSampler {
 	
 	private int getIndex(int x, int z) {
 		return z * width + x;
-	}
-	
-	private int wrap(int value, int side) {
-		int result = (value - value / side * side);
-		return result < 0 ? result + side : result;
 	}
 }
