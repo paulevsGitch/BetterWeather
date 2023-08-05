@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "better_weather",
+	"version": "${version}",
+
+	"name": "Better Weather",
+	"description": "Minecraft weather improvements",
+	"authors": [
+		"paulevs"
+	],
+	"contact": {
+		"homepage": "",
+		"sources": "",
+		"issues": ""
+	},
+
+	"license": "MIT",
+	"icon": "assets/better_weather/icon.png",
+
+	"environment": "*",
+	"entrypoints": {},
+
+	"mixins": [
+		"betterweather.mixins.client.json"
+	],
+	
+	"depends": {
+		"minecraft": "1.0.0-beta.7.3",
+		"stationapi": "*"
+	}
+}

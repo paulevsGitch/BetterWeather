@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "paulevs.betterweather.mixin.client",
+	"compatibilityLevel": "JAVA_17",
+	"client": [
+		"LevelRendererMixin",
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
