@@ -19,7 +19,6 @@ import java.util.Random;
 public class CloudRenderer {
 	private static final PerlinNoise NOISE = new PerlinNoise(new Random(0));
 	private static final short[] CLOUD_DATA = new short[8192];
-	private static final Random RANDOM = new Random(0);
 	
 	private static final int RADIUS = 9;
 	private static final int SIDE = RADIUS * 2 + 1;

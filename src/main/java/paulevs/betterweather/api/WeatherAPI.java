@@ -1,8 +1,12 @@
 package paulevs.betterweather.api;
 
 import net.minecraft.level.Level;
+import net.minecraft.util.maths.Vec2i;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
 import paulevs.betterweather.util.ImageSampler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WeatherAPI {
 	private static final ImageSampler MAIN_SHAPE_SAMPLER = new ImageSampler("assets/better_weather/textures/main_shape.png");
@@ -10,6 +14,7 @@ public class WeatherAPI {
 	private static final ImageSampler VARIATION_SAMPLER = new ImageSampler("assets/better_weather/textures/variation.png");
 	private static final ImageSampler FRONTS_SAMPLER = new ImageSampler("assets/better_weather/textures/rain_fronts.png");
 	private static final float[] CLOUD_SHAPE = new float[64];
+	private static final Vec2i[] OFFSETS;
 	
 	public static final double CLOUDS_SPEED = 0.001; // Chunks per tick
 	
@@ -62,28 +67,21 @@ public class WeatherAPI {
 	}
 	
 	public static float getRainDensity(Level level, double x, double y, double z) {
-		int x1 = net.minecraft.util.maths.MathHelper.floor(x / 8.0) << 3;
-		int y1 = net.minecraft.util.maths.MathHelper.floor(y / 8.0) << 3;
-		int z1 = net.minecraft.util.maths.MathHelper.floor(z / 8.0) << 3;
+		if (level.dimension.evaporatesWater) return 0;
 		
-		int x2 = x1 + 8;
-		int y2 = y1 + 8;
-		int z2 = z1 + 8;
+		int ix = net.minecraft.util.maths.MathHelper.floor(x);
+		int iy = net.minecraft.util.maths.MathHelper.floor(y);
+		int iz = net.minecraft.util.maths.MathHelper.floor(z);
 		
-		float dx = (float) (x - x1) / 8.0F;
-		float dy = (float) (y - y1) / 8.0F;
-		float dz = (float) (z - z1) / 8.0F;
+		int count = 0;
+		for (Vec2i offset : OFFSETS) {
+			if (isRaining(level, ix + offset.x, iy, iz + offset.z)) {
+				count++;
+				if (count >= 64) return 1F;
+			}
+		}
 		
-		float a = isRaining(level, x1, y1, z1) ? 1F : 0F;
-		float b = isRaining(level, x2, y1, z1) ? 1F : 0F;
-		float c = isRaining(level, x1, y2, z1) ? 1F : 0F;
-		float d = isRaining(level, x2, y2, z1) ? 1F : 0F;
-		float e = isRaining(level, x1, y1, z2) ? 1F : 0F;
-		float f = isRaining(level, x2, y1, z2) ? 1F : 0F;
-		float g = isRaining(level, x1, y2, z2) ? 1F : 0F;
-		float h = isRaining(level, x2, y2, z2) ? 1F : 0F;
-		
-		return MathHelper.interpolate3D(dx, dy, dz, a, b, c, d, e, f, g, h);
+		return count / 64F;
 	}
 	
 	static {
@@ -95,5 +93,24 @@ public class WeatherAPI {
 			CLOUD_SHAPE[i] = (i - 16) / 48F;
 			CLOUD_SHAPE[i] *= CLOUD_SHAPE[i];
 		}
+		
+		int radius = 6;
+		int capacity = radius * 2 + 1;
+		capacity *= capacity;
+		
+		List<Vec2i> offsets = new ArrayList<>(capacity);
+		for (int x = -radius; x <= radius; x++) {
+			for (int z = -radius; z <= radius; z++) {
+				if (x * x + z * z <= radius * radius) {
+					offsets.add(new Vec2i(x, z));
+				}
+			}
+		}
+		offsets.sort((v1, v2) -> {
+			int d1 = v1.x * v1.x + v1.z * v1.z;
+			int d2 = v2.x * v2.x + v2.z * v2.z;
+			return Integer.compare(d1, d2);
+		});
+		OFFSETS = offsets.toArray(Vec2i[]::new);
 	}
 }

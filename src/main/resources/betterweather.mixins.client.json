@@ -5,7 +5,8 @@
 	"compatibilityLevel": "JAVA_17",
 	"client": [
 		"LevelRendererMixin",
-		"GameRendererMixin"
+		"GameRendererMixin",
+		"SoundHelperMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
