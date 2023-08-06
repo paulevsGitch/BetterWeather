@@ -1,5 +1,7 @@
 package paulevs.betterweather.render;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.LivingEntity;
@@ -10,6 +12,7 @@ import paulevs.betterweather.api.WeatherAPI;
 
 import java.util.Random;
 
+@Environment(EnvType.CLIENT)
 public class WeatherRenderer {
 	private final float[] randomOffset;
 	private int rainTexture;
@@ -40,7 +43,7 @@ public class WeatherRenderer {
 		
 		if (iy - rainTop > 40) return;
 		
-		float vOffset = (float) (((double) level.getLevelTime() + delta) * 0.1 % 1.0);
+		float vOffset = (float) (((double) level.getLevelTime() + delta) * 0.05 % 1.0);
 		
 		Tessellator tessellator = Tessellator.INSTANCE;
 		

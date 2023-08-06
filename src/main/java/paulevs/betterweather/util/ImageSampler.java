@@ -1,4 +1,4 @@
-package paulevs.betterweather.render;
+package paulevs.betterweather.util;
 
 import net.minecraft.util.maths.MathHelper;
 

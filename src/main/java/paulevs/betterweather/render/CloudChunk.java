@@ -14,8 +14,9 @@ public class CloudChunk {
 	private static final float[] DARK_COLOR = new float[] { 150F / 255F, 176F / 255F, 211F / 255F };
 	private static final Random RANDOM = new Random(0);
 	
-	private boolean needUpdate = true;
 	private final int listID;
+	
+	private boolean needUpdate = true;
 	private int chunkX = Integer.MIN_VALUE;
 	private int chunkZ = Integer.MIN_VALUE;
 	private int posX;
@@ -38,7 +39,7 @@ public class CloudChunk {
 		this.posZ = chunkZ << 5;
 	}
 	
-	public void update(int chunkX, int chunkZ, byte[] data) {
+	public void update(int chunkX, int chunkZ, short[] data) {
 		this.chunkX = chunkX;
 		this.chunkZ = chunkZ;
 		
@@ -46,24 +47,25 @@ public class CloudChunk {
 		GL11.glNewList(listID, GL11.GL_COMPILE);
 		tessellator.start();
 		
-		for (short i = 0; i < 4096; i++) {
+		for (short i = 0; i < 8192; i++) {
 			if (data[i] == -1) continue;
 			
 			byte x = (byte) (i & 15);
-			byte y = (byte) ((i >> 4) & 15);
-			byte z = (byte) (i >> 8);
+			byte y = (byte) ((i >> 4) & 31);
+			byte z = (byte) (i >> 9);
 			
-			boolean canDraw = x == 0 || x == 15 || y == 0 || y == 15 || z == 0 || z == 15;
+			boolean canDraw = x == 0 || x == 15 || y == 0 || y == 31 || z == 0 || z == 15;
 			if (!canDraw) {
 				canDraw = data[i + 1] == -1 || data[i - 1] == -1 ||
-					data[i + 16] == -1 || data[i - 16] == -1 ||
-					data[i + 256] == -1 || data[i - 256] == -1;
+					data[i + 32] == -1 || data[i - 32] == -1 ||
+					data[i + 512] == -1 || data[i - 512] == -1;
 			}
 			
 			if (!canDraw) continue;
 			
-			float deltaBrightness = (data[i] & 15) / 15F;
-			float deltaWetness = ((data[i] >> 4) & 15) / 15F;
+			RANDOM.setSeed(MathHelper.hashCode(x, y, z));
+			float deltaBrightness = ((data[i] & 15) + RANDOM.nextFloat()) / 16F;
+			float deltaWetness = (((data[i] >> 4) & 15) + RANDOM.nextFloat()) / 16F;
 			deltaBrightness *= (1 - deltaWetness) * 0.5F + 0.5F;
 			
 			float r = MathHelper.lerp(deltaWetness, RAIN_COLOR[0], DARK_COLOR[0]);
@@ -92,8 +94,6 @@ public class CloudChunk {
 	}
 	
 	private void makeCloudBlock(Tessellator tessellator, int x, int y, int z) {
-		RANDOM.setSeed(MathHelper.hashCode(x, y, z));
-		
 		float px = x + RANDOM.nextFloat() * 0.1F - 0.05F;
 		float py = y + RANDOM.nextFloat() * 0.1F - 0.05F;
 		float pz = z + RANDOM.nextFloat() * 0.1F - 0.05F;

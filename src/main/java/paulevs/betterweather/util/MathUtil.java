@@ -1,4 +1,4 @@
-package paulevs.betterweather.render;
+package paulevs.betterweather.util;
 
 public class MathUtil {
 	public static int wrap(int value, int side) {
