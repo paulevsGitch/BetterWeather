@@ -67,15 +67,29 @@ public class WeatherAPI {
 	}
 	
 	public static float getRainDensity(Level level, double x, double y, double z) {
-		if (level.dimension.evaporatesWater) return 0;
+		int x1 = net.minecraft.util.maths.MathHelper.floor(x);
+		int y1 = net.minecraft.util.maths.MathHelper.floor(y);
+		int z1 = net.minecraft.util.maths.MathHelper.floor(z);
+		int x2 = x1 + 1;
+		int z2 = z1 + 1;
 		
-		int ix = net.minecraft.util.maths.MathHelper.floor(x);
-		int iy = net.minecraft.util.maths.MathHelper.floor(y);
-		int iz = net.minecraft.util.maths.MathHelper.floor(z);
+		float dx = (float) (x - x1);
+		float dz = (float) (z - z1);
+		
+		float a = getRainDensity(level, x1, y1, z1);
+		float b = getRainDensity(level, x2, y1, z1);
+		float c = getRainDensity(level, x1, y1, z2);
+		float d = getRainDensity(level, x2, y1, z2);
+		
+		return MathHelper.interpolate2D(dx, dz, a, b, c, d);
+	}
+	
+	public static float getRainDensity(Level level, int x, int y, int z) {
+		if (level.dimension.evaporatesWater) return 0;
 		
 		int count = 0;
 		for (Vec2i offset : OFFSETS) {
-			if (isRaining(level, ix + offset.x, iy, iz + offset.z)) {
+			if (isRaining(level, x + offset.x, y, z + offset.z)) {
 				count++;
 				if (count >= 64) return 1F;
 			}

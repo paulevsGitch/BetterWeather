@@ -13,11 +13,15 @@ import java.net.URL;
 
 @Environment(EnvType.CLIENT)
 public class WeatherSounds {
-	public static final SoundEntry RAIN_NORMAL = getSound("ambient/rain_normal");
-	public static final SoundEntry RAIN_ROOF = getSound("ambient/rain_roof");
-	
+	public static final SoundEntry RAIN = getSound("ambient/rain");
 	private static final String RAIN_KEY = "ambient.weather.rain";
+	
 	private static boolean underRoof = false;
+	private static SoundSystem soundSystem;
+	
+	public static void init(SoundSystem soundSystem) {
+		WeatherSounds.soundSystem = soundSystem;
+	}
 	
 	public static SoundEntry getSound(String name) {
 		name = "assets/better_weather/stationapi/sounds/" + name + ".ogg";
@@ -25,23 +29,29 @@ public class WeatherSounds {
 		return new SoundEntry(name, url);
 	}
 	
-	public static void updateSound(Level level, LivingEntity entity, SoundSystem soundSystem) {
+	public static void stop() {
+		if (soundSystem.playing(RAIN_KEY)) soundSystem.stop(RAIN_KEY);
+	}
+	
+	public static void updateSound(Level level, LivingEntity entity, SoundSystem soundSystem, float volume) {
 		if (level == null || entity == null) {
-			if (soundSystem.playing(RAIN_KEY)) soundSystem.stop(RAIN_KEY);
+			stop();
 			return;
 		}
 		
-		float volume = WeatherAPI.getRainDensity(level, entity.x, entity.y, entity.z) * soundSystem.getMasterVolume();
+		volume *= WeatherAPI.getRainDensity(level, entity.x, entity.y, entity.z) * soundSystem.getMasterVolume();
 		if (volume == 0) {
-			if (soundSystem.playing(RAIN_KEY)) soundSystem.stop(RAIN_KEY);
+			stop();
 			return;
+		}
+		else if (!soundSystem.playing(RAIN_KEY)) {
+			soundSystem.backgroundMusic(RAIN_KEY, RAIN.soundUrl, RAIN.soundName, true);
+			soundSystem.play(RAIN_KEY);
 		}
 		
 		boolean newRoof = entity.y < level.getHeight(MathHelper.floor(entity.x), MathHelper.floor(entity.z));
-		if (newRoof != underRoof || !soundSystem.playing(RAIN_KEY)) {
-			SoundEntry sound = newRoof ? RAIN_ROOF : RAIN_NORMAL;
-			soundSystem.backgroundMusic(RAIN_KEY, sound.soundUrl, sound.soundName, true);
-			soundSystem.play(RAIN_KEY);
+		if (newRoof != underRoof) {
+			soundSystem.setPitch(RAIN_KEY, newRoof ? 0.25F : 1.0F);
 			underRoof = newRoof;
 		}
 		

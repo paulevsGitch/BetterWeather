@@ -6,7 +6,8 @@
 	"client": [
 		"LevelRendererMixin",
 		"GameRendererMixin",
-		"SoundHelperMixin"
+		"SoundHelperMixin",
+		"MainMenuMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
