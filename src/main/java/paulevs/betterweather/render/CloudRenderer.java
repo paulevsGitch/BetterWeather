@@ -73,6 +73,7 @@ public class CloudRenderer {
 		entityZ -= (moveDelta - worldOffset) * 32;
 		
 		GL11.glDisable(GL11.GL_CULL_FACE);
+		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		cloudTexture.bindAndUpdate(minecraft.level.getSunPosition(delta));
@@ -97,6 +98,7 @@ public class CloudRenderer {
 		}
 		
 		GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glEnable(GL11.GL_BLEND);
 	}
 	
 	private void updateData(int cx, int cz) {

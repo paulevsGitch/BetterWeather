@@ -18,14 +18,17 @@ public class WeatherRenderer {
 	private int rainTexture;
 	private int snowTexture;
 	
-	public WeatherRenderer(TextureManager manager) {
-		this.rainTexture = manager.getTextureId("/environment/rain.png");
-		this.snowTexture = manager.getTextureId("/environment/snow.png");
+	public WeatherRenderer() {
 		randomOffset = new float[256];
 		Random random = new Random(0);
 		for (short i = 0; i < 256; i++) {
 			randomOffset[i] = random.nextFloat();
 		}
+	}
+	
+	public void update(TextureManager manager) {
+		this.rainTexture = manager.getTextureId("/environment/rain.png");
+		this.snowTexture = manager.getTextureId("/environment/snow.png");
 	}
 	
 	public void render(float delta, Level level, LivingEntity viewEntity, boolean fancyGraphics) {
