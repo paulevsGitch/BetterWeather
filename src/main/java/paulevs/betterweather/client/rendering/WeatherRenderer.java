@@ -1,4 +1,4 @@
-package paulevs.betterweather.render;
+package paulevs.betterweather.client.rendering;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -55,6 +55,7 @@ public class WeatherRenderer {
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0.01F);
+		GL11.glColor4f(1F, 1F, 1F, 1F);
 		
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, rainTexture);
 		
@@ -95,8 +96,10 @@ public class WeatherRenderer {
 		float v1 = dv * 4F;
 		float v2 = ((rainTop - terrain) * 0.0625F + dv) * 4F;
 		
-		float light = 1F;//level.getBrightness(x, terrain, z);
-		GL11.glColor4f(light, light, light, 1F);
+		float light = level.getBrightness(x, terrain, z);
+		float alpha = WeatherAPI.sampleFront(x, z, 0.1F);
+		alpha = net.modificationstation.stationapi.api.util.math.MathHelper.clamp((alpha - 0.2F) * 2, 0F, 1F);
+		tessellator.color(light, light, light, alpha);
 		
 		float u1 = (x & 3);
 		float u2 = u1 + 1;
@@ -128,7 +131,9 @@ public class WeatherRenderer {
 		float v2 = (rainTop - terrain) * 0.0625F + dv;
 		
 		float light = level.getBrightness(x, terrain, z);
-		GL11.glColor4f(light, light, light, 1F);
+		float alpha = WeatherAPI.sampleFront(x, z, 0.1F);
+		alpha = net.modificationstation.stationapi.api.util.math.MathHelper.clamp((alpha - 0.2F) * 2, 0F, 1F);
+		tessellator.color(light, light, light, alpha);
 		
 		float u1 = (x & 3) * 0.25F;
 		float u2 = u1 + 0.25F;

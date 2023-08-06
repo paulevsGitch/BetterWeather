@@ -21,14 +21,10 @@ public class WeatherAPI {
 		z -= ((double) level.getLevelTime()) * CLOUDS_SPEED * 32;
 		
 		float rainFront = sampleFront(x, z, 0.1);
-		if (rainFront <= 0.5F) return false;
+		if (rainFront < 0.2F) return false;
 		
 		float coverage = getCoverage(rainFront);
-		return getCloudDensity(x, 5, z, rainFront) > coverage &&
-			getCloudDensity(x - 4, 5, z, rainFront) > coverage &&
-			getCloudDensity(x + 4, 5, z, rainFront) > coverage &&
-			getCloudDensity(x, 5, z - 4, rainFront) > coverage &&
-			getCloudDensity(x, 5, z + 4, rainFront) > coverage;
+		return getCloudDensity(x, 7, z, rainFront) > coverage;
 	}
 	
 	public static boolean isInCloud(Level level, int x, int y, int z) {
@@ -63,6 +59,31 @@ public class WeatherAPI {
 	
 	public static float getCoverage(float rainFront) {
 		return MathHelper.lerp(rainFront, 1.3F, 0.5F);
+	}
+	
+	public static float getRainDensity(Level level, double x, double y, double z) {
+		int x1 = net.minecraft.util.maths.MathHelper.floor(x / 8.0) << 3;
+		int y1 = net.minecraft.util.maths.MathHelper.floor(y / 8.0) << 3;
+		int z1 = net.minecraft.util.maths.MathHelper.floor(z / 8.0) << 3;
+		
+		int x2 = x1 + 8;
+		int y2 = y1 + 8;
+		int z2 = z1 + 8;
+		
+		float dx = (float) (x - x1) / 8.0F;
+		float dy = (float) (y - y1) / 8.0F;
+		float dz = (float) (z - z1) / 8.0F;
+		
+		float a = isRaining(level, x1, y1, z1) ? 1F : 0F;
+		float b = isRaining(level, x2, y1, z1) ? 1F : 0F;
+		float c = isRaining(level, x1, y2, z1) ? 1F : 0F;
+		float d = isRaining(level, x2, y2, z1) ? 1F : 0F;
+		float e = isRaining(level, x1, y1, z2) ? 1F : 0F;
+		float f = isRaining(level, x2, y1, z2) ? 1F : 0F;
+		float g = isRaining(level, x1, y2, z2) ? 1F : 0F;
+		float h = isRaining(level, x2, y2, z2) ? 1F : 0F;
+		
+		return MathHelper.interpolate3D(dx, dy, dz, a, b, c, d, e, f, g, h);
 	}
 	
 	static {

@@ -1,4 +1,4 @@
-package paulevs.betterweather.render;
+package paulevs.betterweather.client.rendering;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
