@@ -39,7 +39,7 @@ public class WeatherSounds {
 			return;
 		}
 		
-		volume *= WeatherAPI.getRainDensity(level, entity.x, entity.y, entity.z) * soundSystem.getMasterVolume();
+		volume *= WeatherAPI.getRainDensity(level, entity.x, entity.y, entity.z) * 0.5F;
 		if (volume == 0) {
 			stop();
 			return;
