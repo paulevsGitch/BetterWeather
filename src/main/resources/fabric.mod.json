@@ -21,7 +21,8 @@
 	"entrypoints": {},
 
 	"mixins": [
-		"betterweather.mixins.client.json"
+		"betterweather.mixins.client.json",
+		"betterweather.mixins.common.json"
 	],
 	
 	"depends": {

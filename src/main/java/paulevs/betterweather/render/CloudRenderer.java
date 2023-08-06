@@ -7,6 +7,7 @@ import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.maths.Vec2i;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
+import paulevs.betterweather.api.WeatherAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,19 +18,18 @@ public class CloudRenderer {
 	private static final ImageSampler MAIN_SHAPE_SAMPLER = new ImageSampler("assets/better_weather/textures/main_shape.png");
 	private static final ImageSampler LARGE_DETAILS_SAMPLER = new ImageSampler("assets/better_weather/textures/large_details.png");
 	private static final ImageSampler VARIATION_SAMPLER = new ImageSampler("assets/better_weather/textures/variation.png");
+	private static final ImageSampler FRONTS_SAMPLER = new ImageSampler("assets/better_weather/textures/rain_fronts.png");
 	private static final byte[] CLOUD_DATA = new byte[4096];
 	private static final Random RANDOM = new Random(0);
 	
 	private static final int RADIUS = 9;
 	private static final int SIDE = RADIUS * 2 + 1;
 	private static final int CAPACITY = SIDE * SIDE;
-	private static final double SPEED = 0.001; // Chunks per tick
 	
 	private final CloudChunk[] chunks = new CloudChunk[CAPACITY];
 	private final float[] cloudShape = new float[16];
 	private final Vec2i[] offsets;
 	
-	//private int cloudTexture = 0;
 	private CloudTexture cloudTexture;
 	
 	public CloudRenderer() {
@@ -61,9 +61,6 @@ public class CloudRenderer {
 	}
 	
 	public void update(TextureManager manager) {
-		/*if (cloudTexture == 0) {
-			cloudTexture = manager.getTextureId("/assets/better_weather/textures/cloud.png");
-		}*/
 		if (cloudTexture == null) {
 			cloudTexture = new CloudTexture(manager);
 		}
@@ -82,13 +79,12 @@ public class CloudRenderer {
 		int centerX = net.minecraft.util.maths.MathHelper.floor(entityX / 32);
 		int centerZ = net.minecraft.util.maths.MathHelper.floor(entityZ / 32);
 		
-		double moveDelta = ((double) minecraft.level.getLevelTime() + delta) * SPEED;
+		double moveDelta = ((double) minecraft.level.getLevelTime() + delta) * WeatherAPI.CLOUDS_SPEED;
 		int worldOffset = (int) Math.floor(moveDelta);
 		entityZ -= (moveDelta - worldOffset) * 32;
 		
 		GL11.glDisable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		//GL11.glBindTexture(GL11.GL_TEXTURE_2D, cloudTexture);
 		
 		cloudTexture.bindAndUpdate(minecraft.level.getSunPosition(delta));
 		
@@ -133,7 +129,7 @@ public class CloudRenderer {
 		cx <<= 4;
 		cz <<= 4;
 		
-		float coverage = 1.2F;
+		//float coverage = 1.2F;
 		
 		for (short index = 0; index < 4096; index++) {
 			int x = index & 15;
@@ -143,7 +139,15 @@ public class CloudRenderer {
 			x |= cx;
 			z |= cz;
 			
-			float density = getDensity(x, y, z);
+			float density = WeatherAPI.getCloudDensity(x << 1, y << 1, z << 1);
+			float rainFront = WeatherAPI.sampleFront(x, z, 0.2);
+			float coverage = WeatherAPI.getCoverage(rainFront);
+			
+			// Debug
+			/*if (rainFront > 0.5F && (y == 0 || y == 15)) {
+				CLOUD_DATA[index] = (byte) 0x0F;
+				continue;
+			}*/
 			
 			if (density < coverage) {
 				CLOUD_DATA[index] = -1;
@@ -152,13 +156,14 @@ public class CloudRenderer {
 			
 			byte light = 15;
 			for (byte i = (byte) (y + 1); i < 15; i++) {
-				if (getDensity(x, i, z) >= coverage) light--;
+				if (WeatherAPI.getCloudDensity(x << 1, i << 1, z << 1) >= coverage) light--;
 			}
 			
 			RANDOM.setSeed(MathHelper.hashCode(x, y, z));
 			light = (byte) MathHelper.clamp(light + RANDOM.nextInt(3) - 1, 0, 15);
+			byte wetness = (byte) (rainFront * 15);
 			
-			CLOUD_DATA[index] = light;
+			CLOUD_DATA[index] = (byte) (light | wetness << 4);
 		}
 	}
 }

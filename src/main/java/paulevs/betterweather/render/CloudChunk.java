@@ -62,13 +62,18 @@ public class CloudChunk {
 			
 			if (!canDraw) continue;
 			
-			//tessellator.color((i & 15) * 17, ((i >> 4) & 15) * 17, (i >> 8) * 17);
-			float delta = data[i] / 15F;
-			tessellator.color(
-				MathHelper.lerp(delta, DARK_COLOR[0], 1F),
-				MathHelper.lerp(delta, DARK_COLOR[1], 1F),
-				MathHelper.lerp(delta, DARK_COLOR[2], 1F)
-			);
+			float deltaBrightness = (data[i] & 15) / 15F;
+			float deltaWetness = ((data[i] >> 4) & 15) / 15F;
+			deltaBrightness *= (1 - deltaWetness) * 0.5F + 0.5F;
+			
+			float r = MathHelper.lerp(deltaWetness, RAIN_COLOR[0], DARK_COLOR[0]);
+			float g = MathHelper.lerp(deltaWetness, RAIN_COLOR[1], DARK_COLOR[1]);
+			float b = MathHelper.lerp(deltaWetness, RAIN_COLOR[2], DARK_COLOR[2]);
+			r = MathHelper.lerp(deltaBrightness, r, 1F);
+			g = MathHelper.lerp(deltaBrightness, g, 1F);
+			b = MathHelper.lerp(deltaBrightness, b, 1F);
+			
+			tessellator.color(r, g, b);
 			makeCloudBlock(tessellator, x, y, z);
 		}
 		
