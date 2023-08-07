@@ -98,7 +98,7 @@ public class WeatherRenderer {
 		
 		float light = level.getBrightness(x, terrain, z);
 		float alpha = WeatherAPI.sampleFront(x, z, 0.1F);
-		alpha = net.modificationstation.stationapi.api.util.math.MathHelper.clamp((alpha - 0.2F) * 2, 0F, 1F);
+		alpha = net.modificationstation.stationapi.api.util.math.MathHelper.clamp((alpha - 0.2F) * 2, 0.5F, 1F);
 		tessellator.color(light, light, light, alpha);
 		
 		float u1 = (x & 3);
@@ -132,7 +132,7 @@ public class WeatherRenderer {
 		
 		float light = level.getBrightness(x, terrain, z);
 		float alpha = WeatherAPI.sampleFront(x, z, 0.1F);
-		alpha = net.modificationstation.stationapi.api.util.math.MathHelper.clamp((alpha - 0.2F) * 2, 0F, 1F);
+		alpha = net.modificationstation.stationapi.api.util.math.MathHelper.clamp((alpha - 0.2F) * 2, 0.5F, 1F);
 		tessellator.color(light, light, light, alpha);
 		
 		float u1 = (x & 3) * 0.25F;
