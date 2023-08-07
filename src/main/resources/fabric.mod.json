@@ -9,9 +9,9 @@
 		"paulevs"
 	],
 	"contact": {
-		"homepage": "",
-		"sources": "",
-		"issues": ""
+		"homepage": "https://github.com/paulevsGitch/BetterWeather",
+		"sources": "https://github.com/paulevsGitch/BetterWeather",
+		"issues": "https://github.com/paulevsGitch/BetterWeather/issues"
 	},
 
 	"license": "MIT",
