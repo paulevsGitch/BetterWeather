@@ -3,7 +3,7 @@
 		<tr>
 			<td width="280px" style="text-align: center;"><img src="https://github.com/paulevsGitch/BetterWeather/blob/main/src/main/resources/assets/better_weather/icon.png"/></td>		
 			<td>
-				<h2 align="left">Vanilla Block Enhancements</h2>
+				<h2 align="left">Better Weather</h2>
 				<a href="https://jitpack.io/#paulevsGitch/BetterWeather"><img src="https://jitpack.io/v/paulevsGitch/BetterWeather.svg"></a>
 				<p>
 					This mod improves Minecraft weather by making clouds volumetric and weather effects local.
