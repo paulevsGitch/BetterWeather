@@ -3,6 +3,7 @@ package paulevs.betterweather.api;
 import net.minecraft.level.Level;
 import net.minecraft.util.maths.Vec2i;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
+import paulevs.betterweather.config.WeatherConfig;
 import paulevs.betterweather.util.ImageSampler;
 
 import java.util.ArrayList;
@@ -13,17 +14,17 @@ public class WeatherAPI {
 	private static final ImageSampler LARGE_DETAILS_SAMPLER = new ImageSampler("assets/better_weather/textures/large_details.png");
 	private static final ImageSampler VARIATION_SAMPLER = new ImageSampler("assets/better_weather/textures/variation.png");
 	private static final ImageSampler FRONTS_SAMPLER = new ImageSampler("assets/better_weather/textures/rain_fronts.png");
+	private static final ImageSampler RAIN_DENSITY = new ImageSampler("assets/better_weather/textures/rain_density.png");
+	private static final ImageSampler VANILLA_CLOUDS = new ImageSampler("assets/better_weather/textures/vanilla_clouds.png").setSmooth(true);
 	private static final float[] CLOUD_SHAPE = new float[64];
 	private static final Vec2i[] OFFSETS;
-	
-	public static final double CLOUDS_SPEED = 0.001; // Chunks per tick
 	
 	public static boolean isRaining(Level level, int x, int y, int z) {
 		if (level.dimension.evaporatesWater) return false;
 		if (y > level.dimension.getCloudHeight() + 8) return false;
 		if (y < level.getHeight(x, z)) return false;
 		
-		z -= ((double) level.getLevelTime()) * CLOUDS_SPEED * 32;
+		z -= ((double) level.getLevelTime()) * WeatherConfig.getCloudsSpeed() * 32;
 		
 		float rainFront = sampleFront(x, z, 0.1);
 		if (rainFront < 0.2F) return false;
@@ -33,7 +34,7 @@ public class WeatherAPI {
 	}
 	
 	public static float inCloud(Level level, double x, double y, double z) {
-		z -= ((double) level.getLevelTime()) * CLOUDS_SPEED * 32;
+		z -= ((double) level.getLevelTime()) * WeatherConfig.getCloudsSpeed() * 32;
 		int x1 = net.minecraft.util.maths.MathHelper.floor(x / 2.0) << 1;
 		int y1 = net.minecraft.util.maths.MathHelper.floor(y / 2.0) << 1;
 		int z1 = net.minecraft.util.maths.MathHelper.floor(z / 2.0) << 1;
@@ -68,6 +69,12 @@ public class WeatherAPI {
 	}
 	
 	public static float getCloudDensity(int x, int y, int z, float rainFront) {
+		if (WeatherConfig.useVanillaClouds()) {
+			if (y > 6) return 0;
+			float shape = y == 0 || y == 5 ? 1 : 0;
+			return VANILLA_CLOUDS.sample(x / 16.0, z / 16.0) * 3 - shape;
+		}
+		
 		float density = MAIN_SHAPE_SAMPLER.sample(x * 0.75F, z * 0.75F);
 		density += LARGE_DETAILS_SAMPLER.sample(x * 2.5F, z * 2.5F);
 		
@@ -85,7 +92,8 @@ public class WeatherAPI {
 	}
 	
 	public static float sampleFront(int x, int z, double scale) {
-		return FRONTS_SAMPLER.sample(x * scale, z * scale);
+		double scale2 = scale * 0.7;
+		return FRONTS_SAMPLER.sample(x * scale, z * scale) * RAIN_DENSITY.sample(x * scale2, z * scale2);
 	}
 	
 	public static float getCoverage(float rainFront) {

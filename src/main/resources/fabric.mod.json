@@ -18,7 +18,11 @@
 	"icon": "assets/better_weather/icon.png",
 
 	"environment": "*",
-	"entrypoints": {},
+	"entrypoints": {
+		"stationapi:event_bus": [
+			"paulevs.betterweather.listeners.CommonListener"
+		]
+	},
 
 	"mixins": [
 		"betterweather.mixins.client.json",

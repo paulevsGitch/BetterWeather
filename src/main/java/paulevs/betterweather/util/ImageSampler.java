@@ -12,6 +12,8 @@ public class ImageSampler {
 	private final int width;
 	private final int height;
 	
+	private boolean smooth;
+	
 	public ImageSampler(String path) {
 		URL url = Thread.currentThread().getContextClassLoader().getResource(path);
 		BufferedImage image;
@@ -51,6 +53,11 @@ public class ImageSampler {
 		float c = data[getIndex(x1, z2)];
 		float d = data[getIndex(x2, z2)];
 		
+		if (smooth) {
+			dx = smoothStep(dx);
+			dz = smoothStep(dz);
+		}
+		
 		return net.modificationstation.stationapi.api.util.math.MathHelper.interpolate2D(
 			dx, dz, a, b, c, d
 		);
@@ -58,5 +65,14 @@ public class ImageSampler {
 	
 	private int getIndex(int x, int z) {
 		return z * width + x;
+	}
+	
+	public ImageSampler setSmooth(boolean smooth) {
+		this.smooth = smooth;
+		return this;
+	}
+	
+	private float smoothStep(float x) {
+		return x * x * x * (x * (x * 6 - 15) + 10);
 	}
 }
