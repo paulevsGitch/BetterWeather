@@ -87,6 +87,5 @@ public class GameRendererMixin {
 		if (betterweather_fogDistance == 1) return;
 		GL11.glFogf(GL11.GL_FOG_START, this.fogDistance * betterweather_fogDistance * 0.25F);
 		GL11.glFogf(GL11.GL_FOG_END, this.fogDistance * betterweather_fogDistance);
-		CloudRenderer.fogDistance = this.fogDistance * betterweather_fogDistance;
 	}
 }
