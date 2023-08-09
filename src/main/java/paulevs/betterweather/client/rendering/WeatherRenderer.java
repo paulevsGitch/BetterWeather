@@ -129,32 +129,42 @@ public class WeatherRenderer {
 		if (!WeatherAPI.isRaining(level, x, terrain, z)) return;
 		if (level.getBiomeSource().getBiome(x, z).canSnow() != snow) return;
 		
-		float dv = randomOffset[(x & 15) << 4 | (z & 15)] + vOffset;
-		float v1 = dv;
-		float v2 = ((rainTop - terrain) * 0.0625F + dv);
+		float v1 = randomOffset[(x & 15) << 4 | (z & 15)] + vOffset;
+		float v2 = ((rainTop - terrain) * 0.0625F + v1);
 		
 		float light = level.getBrightness(x, terrain, z);
 		float alpha = WeatherAPI.sampleFront(x, z, 0.1F);
 		alpha = net.modificationstation.stationapi.api.util.math.MathHelper.clamp((alpha - 0.2F) * 2, 0.5F, 1F);
 		tessellator.color(light, light, light, alpha);
 		
-		float u1 = (x & 3);
-		float u2 = u1 + 1;
+		float u1 = ((x + z) & 3) * 0.25F;
+		float u2 = u1 + 0.25F;
 		
-		tessellator.vertex(x - 1.5F, terrain, z + 0.5F, u1, v1);
-		tessellator.vertex(x - 1.5F, rainTop, z + 0.5F, u1, v2);
-		tessellator.vertex(x + 2.5F, rainTop, z + 0.5F, u2, v2);
-		tessellator.vertex(x + 2.5F, terrain, z + 0.5F, u2, v1);
+		float dx = (float) (pos.x - (x + 0.5));
+		float dz = (float) (pos.z - (z + 0.5));
+		float l = dx * dx + dz * dz;
+		if (l > 0) {
+			l = MathHelper.sqrt(l) / 0.5F;
+			dx /= l;
+			dz /= l;
+			float v = dx;
+			dx = -dz;
+			dz = v;
+		}
+		else {
+			dx = 0.5F;
+			dz = 0;
+		}
 		
-		u1 = (z & 3);
-		u2 = u1 + 1;
-		v1 += 0.5F;
-		v2 += 0.5F;
+		double x1 = x + 0.5 + dx;
+		double x2 = x + 0.5 - dx;
+		double z1 = z + 0.5 + dz;
+		double z2 = z + 0.5 - dz;
 		
-		tessellator.vertex(x + 0.5F, terrain, z - 1.5F, u1, v1);
-		tessellator.vertex(x + 0.5F, rainTop, z - 1.5F, u1, v2);
-		tessellator.vertex(x + 0.5F, rainTop, z + 2.5F, u2, v2);
-		tessellator.vertex(x + 0.5F, terrain, z + 2.5F, u2, v1);
+		tessellator.vertex(x1, terrain, z1, u1, v1);
+		tessellator.vertex(x1, rainTop, z1, u1, v2);
+		tessellator.vertex(x2, rainTop, z2, u2, v2);
+		tessellator.vertex(x2, terrain, z2, u2, v1);
 	}
 	
 	private void renderNormalSection(Level level, int x, int y, int z, Vec3f pos, Vec3f dir, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
@@ -169,32 +179,42 @@ public class WeatherRenderer {
 		if (!WeatherAPI.isRaining(level, x, terrain, z)) return;
 		if (level.getBiomeSource().getBiome(x, z).canSnow() != snow) return;
 		
-		float dv = randomOffset[(x & 15) << 4 | (z & 15)] + vOffset;
-		float v1 = dv;
-		float v2 = (rainTop - terrain) * 0.0625F + dv;
+		float v1 = randomOffset[(x & 15) << 4 | (z & 15)] + vOffset;
+		float v2 = (rainTop - terrain) * 0.0625F + v1;
 		
 		float light = level.getBrightness(x, terrain, z);
 		float alpha = WeatherAPI.sampleFront(x, z, 0.1F);
 		alpha = net.modificationstation.stationapi.api.util.math.MathHelper.clamp((alpha - 0.2F) * 2, 0.5F, 1F);
 		tessellator.color(light, light, light, alpha);
 		
-		float u1 = (x & 3) * 0.25F;
+		float u1 = ((x + z) & 3) * 0.25F;
 		float u2 = u1 + 0.25F;
 		
-		tessellator.vertex(x, terrain, z + 0.5, u1, v1);
-		tessellator.vertex(x, rainTop, z + 0.5, u1, v2);
-		tessellator.vertex(x + 1, rainTop, z + 0.5, u2, v2);
-		tessellator.vertex(x + 1, terrain, z + 0.5, u2, v1);
+		float dx = (float) (pos.x - (x + 0.5));
+		float dz = (float) (pos.z - (z + 0.5));
+		float l = dx * dx + dz * dz;
+		if (l > 0) {
+			l = MathHelper.sqrt(l) / 0.5F;
+			dx /= l;
+			dz /= l;
+			float v = dx;
+			dx = -dz;
+			dz = v;
+		}
+		else {
+			dx = 0.5F;
+			dz = 0;
+		}
 		
-		u1 = (z & 3) * 0.25F;
-		u2 = u1 + 0.25F;
-		v1 += 0.5F;
-		v2 += 0.5F;
+		double x1 = x + 0.5 + dx;
+		double x2 = x + 0.5 - dx;
+		double z1 = z + 0.5 + dz;
+		double z2 = z + 0.5 - dz;
 		
-		tessellator.vertex(x + 0.5F, terrain, z, u1, v1);
-		tessellator.vertex(x + 0.5F, rainTop, z, u1, v2);
-		tessellator.vertex(x + 0.5F, rainTop, z + 1, u2, v2);
-		tessellator.vertex(x + 0.5F, terrain, z + 1, u2, v1);
+		tessellator.vertex(x1, terrain, z1, u1, v1);
+		tessellator.vertex(x1, rainTop, z1, u1, v2);
+		tessellator.vertex(x2, rainTop, z2, u2, v2);
+		tessellator.vertex(x2, terrain, z2, u2, v1);
 	}
 	
 	private Vec3f getPosition(LivingEntity entity) {
