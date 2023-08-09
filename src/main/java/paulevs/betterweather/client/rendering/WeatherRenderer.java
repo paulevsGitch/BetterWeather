@@ -7,6 +7,7 @@ import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.level.Level;
 import net.minecraft.util.maths.MathHelper;
+import net.minecraft.util.maths.Vec3f;
 import org.lwjgl.opengl.GL11;
 import paulevs.betterweather.api.WeatherAPI;
 
@@ -14,6 +15,7 @@ import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class WeatherRenderer {
+	private static final float TO_RADIANS = (float) (Math.PI / 180);
 	private final float[] randomOffset;
 	private int rainTexture;
 	private int snowTexture;
@@ -47,6 +49,8 @@ public class WeatherRenderer {
 		if (iy - rainTop > 40) return;
 		
 		float vOffset = (float) (((double) level.getLevelTime() + delta) * 0.05 % 1.0);
+		Vec3f pos = getPosition(viewEntity);
+		Vec3f dir = getViewDirection(viewEntity);
 		
 		Tessellator tessellator = Tessellator.INSTANCE;
 		
@@ -67,7 +71,7 @@ public class WeatherRenderer {
 			for (byte dz = (byte) -radius; dz <= radius; dz++) {
 				if (Math.abs(dx) < radiusCenter && Math.abs(dz) < radiusCenter) continue;
 				int wz = (iz & -4) + (dz << 2);
-				renderLargeSection(level, wx, iy, wz, rainTop, tessellator, vOffset, false);
+				renderLargeSection(level, wx, iy, wz, pos, dir, rainTop, tessellator, vOffset, false);
 			}
 		}
 		
@@ -75,7 +79,7 @@ public class WeatherRenderer {
 			int wx = ix + dx;
 			for (byte dz = (byte) -radius; dz <= radius; dz++) {
 				int wz = iz + dz;
-				renderNormalSection(level, wx, iy, wz, rainTop, tessellator, vOffset, false);
+				renderNormalSection(level, wx, iy, wz, pos, dir, rainTop, tessellator, vOffset, false);
 			}
 		}
 		
@@ -93,7 +97,7 @@ public class WeatherRenderer {
 			for (byte dz = (byte) -radius; dz <= radius; dz++) {
 				if (Math.abs(dx) < radiusCenter && Math.abs(dz) < radiusCenter) continue;
 				int wz = (iz & -4) + (dz << 2);
-				renderLargeSection(level, wx, iy, wz, rainTop, tessellator, vOffset, true);
+				renderLargeSection(level, wx, iy, wz, pos, dir, rainTop, tessellator, vOffset, true);
 			}
 		}
 		
@@ -101,7 +105,7 @@ public class WeatherRenderer {
 			int wx = ix + dx;
 			for (byte dz = (byte) -radius; dz <= radius; dz++) {
 				int wz = iz + dz;
-				renderNormalSection(level, wx, iy, wz, rainTop, tessellator, vOffset, true);
+				renderNormalSection(level, wx, iy, wz, pos, dir, rainTop, tessellator, vOffset, true);
 			}
 		}
 		
@@ -113,9 +117,15 @@ public class WeatherRenderer {
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 	}
 	
-	private void renderLargeSection(Level level, int x, int y, int z, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
+	private void renderLargeSection(Level level, int x, int y, int z, Vec3f pos, Vec3f dir, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
 		int terrain = level.getHeight(x, z);
 		if (terrain - y > 40) return;
+		
+		boolean visible = pointIsVisible(pos, dir, x + 0.5, terrain, z + 0.5);
+		visible |= pointIsVisible(pos, dir, x + 0.5, y, z + 0.5);
+		visible |= pointIsVisible(pos, dir, x + 0.5, rainTop, z + 0.5);
+		if (!visible) return;
+		
 		if (!WeatherAPI.isRaining(level, x, terrain, z)) return;
 		if (level.getBiomeSource().getBiome(x, z).canSnow() != snow) return;
 		
@@ -147,10 +157,15 @@ public class WeatherRenderer {
 		tessellator.vertex(x + 0.5F, terrain, z + 2.5F, u2, v1);
 	}
 	
-	private void renderNormalSection(Level level, int x, int y, int z, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
+	private void renderNormalSection(Level level, int x, int y, int z, Vec3f pos, Vec3f dir, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
 		int terrain = level.getHeight(x, z);
-		
 		if (terrain - y > 40) return;
+		
+		boolean visible = pointIsVisible(pos, dir, x + 0.5, terrain, z + 0.5);
+		visible |= pointIsVisible(pos, dir, x + 0.5, y, z + 0.5);
+		visible |= pointIsVisible(pos, dir, x + 0.5, rainTop, z + 0.5);
+		if (!visible) return;
+		
 		if (!WeatherAPI.isRaining(level, x, terrain, z)) return;
 		if (level.getBiomeSource().getBiome(x, z).canSnow() != snow) return;
 		
@@ -166,10 +181,10 @@ public class WeatherRenderer {
 		float u1 = (x & 3) * 0.25F;
 		float u2 = u1 + 0.25F;
 		
-		tessellator.vertex(x, terrain, z + 0.5F, u1, v1);
-		tessellator.vertex(x, rainTop, z + 0.5F, u1, v2);
-		tessellator.vertex(x + 1, rainTop, z + 0.5F, u2, v2);
-		tessellator.vertex(x + 1, terrain, z + 0.5F, u2, v1);
+		tessellator.vertex(x, terrain, z + 0.5, u1, v1);
+		tessellator.vertex(x, rainTop, z + 0.5, u1, v2);
+		tessellator.vertex(x + 1, rainTop, z + 0.5, u2, v2);
+		tessellator.vertex(x + 1, terrain, z + 0.5, u2, v1);
 		
 		u1 = (z & 3) * 0.25F;
 		u2 = u1 + 0.25F;
@@ -180,5 +195,29 @@ public class WeatherRenderer {
 		tessellator.vertex(x + 0.5F, rainTop, z, u1, v2);
 		tessellator.vertex(x + 0.5F, rainTop, z + 1, u2, v2);
 		tessellator.vertex(x + 0.5F, terrain, z + 1, u2, v1);
+	}
+	
+	private Vec3f getPosition(LivingEntity entity) {
+		return Vec3f.getFromCacheAndSet(entity.x, entity.y, entity.z);
+	}
+	
+	private Vec3f getViewDirection(LivingEntity entity) {
+		float yaw = entity.prevYaw + (entity.yaw - entity.prevYaw);
+		float pitch = entity.prevPitch + (entity.pitch - entity.prevPitch);
+		
+		yaw = -yaw * TO_RADIANS - (float) Math.PI;
+		float cosYaw = MathHelper.cos(yaw);
+		float sinYaw = MathHelper.sin(yaw);
+		float cosPitch = -MathHelper.cos(-pitch * TO_RADIANS);
+		
+		return Vec3f.getFromCacheAndSet(
+			sinYaw * cosPitch,
+			(MathHelper.sin(-pitch * ((float) Math.PI / 180))),
+			cosYaw * cosPitch
+		);
+	}
+	
+	private boolean pointIsVisible(Vec3f position, Vec3f normal, double x, double y, double z) {
+		return normal.x * (x - position.x) + normal.y * (y - position.y) + normal.z * (z - position.z) > 0;
 	}
 }
