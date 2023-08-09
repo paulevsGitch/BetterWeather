@@ -126,7 +126,7 @@ public class WeatherAPI {
 		
 		int count = 0;
 		for (Vec2i offset : OFFSETS) {
-			boolean snowCheck = includeSnow;// || !level.getBiomeSource().getBiome(x, z).canSnow();
+			boolean snowCheck = includeSnow || !level.getBiomeSource().getBiome(x, z).canSnow();
 			if (snowCheck && isRaining(level, x + offset.x, y, z + offset.z)) {
 				count++;
 				if (count >= 64) return 1F;
