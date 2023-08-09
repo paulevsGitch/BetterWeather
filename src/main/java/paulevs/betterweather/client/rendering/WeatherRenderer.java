@@ -120,8 +120,8 @@ public class WeatherRenderer {
 		if (level.getBiomeSource().getBiome(x, z).canSnow() != snow) return;
 		
 		float dv = randomOffset[(x & 15) << 4 | (z & 15)] + vOffset;
-		float v1 = dv * 4F;
-		float v2 = ((rainTop - terrain) * 0.0625F + dv) * 4F;
+		float v1 = dv;
+		float v2 = ((rainTop - terrain) * 0.0625F + dv);
 		
 		float light = level.getBrightness(x, terrain, z);
 		float alpha = WeatherAPI.sampleFront(x, z, 0.1F);
