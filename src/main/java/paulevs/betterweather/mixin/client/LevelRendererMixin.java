@@ -47,7 +47,8 @@ public class LevelRendererMixin {
 			minecraft.level,
 			minecraft.viewEntity.x,
 			minecraft.viewEntity.y,
-			minecraft.viewEntity.z
+			minecraft.viewEntity.z,
+			true
 		);
 		if (density == 0) return;
 		density = 1F - density * 0.75F;

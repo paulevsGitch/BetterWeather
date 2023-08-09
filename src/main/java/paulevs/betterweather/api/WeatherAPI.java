@@ -23,6 +23,7 @@ public class WeatherAPI {
 		if (level.dimension.evaporatesWater) return false;
 		if (y > level.dimension.getCloudHeight() + 8) return false;
 		if (y < level.getHeight(x, z)) return false;
+		if (WeatherConfig.isEternalRain()) return true;
 		
 		z -= ((double) level.getLevelTime()) * WeatherConfig.getCloudsSpeed() * 32;
 		
@@ -30,7 +31,8 @@ public class WeatherAPI {
 		if (rainFront < 0.2F) return false;
 		
 		float coverage = getCoverage(rainFront);
-		return getCloudDensity(x, 7, z, rainFront) > coverage;
+		int sampleHeight = WeatherConfig.useVanillaClouds() ? 2 : 7;
+		return getCloudDensity(x, sampleHeight, z, rainFront) > coverage;
 	}
 	
 	public static float inCloud(Level level, double x, double y, double z) {
@@ -92,6 +94,7 @@ public class WeatherAPI {
 	}
 	
 	public static float sampleFront(int x, int z, double scale) {
+		if (WeatherConfig.isEternalRain()) return 1F;
 		double scale2 = scale * 0.7;
 		return FRONTS_SAMPLER.sample(x * scale, z * scale) * RAIN_DENSITY.sample(x * scale2, z * scale2);
 	}
@@ -100,7 +103,7 @@ public class WeatherAPI {
 		return MathHelper.lerp(rainFront, 1.3F, 0.5F);
 	}
 	
-	public static float getRainDensity(Level level, double x, double y, double z) {
+	public static float getRainDensity(Level level, double x, double y, double z, boolean includeSnow) {
 		int x1 = net.minecraft.util.maths.MathHelper.floor(x);
 		int y1 = net.minecraft.util.maths.MathHelper.floor(y);
 		int z1 = net.minecraft.util.maths.MathHelper.floor(z);
@@ -110,20 +113,21 @@ public class WeatherAPI {
 		float dx = (float) (x - x1);
 		float dz = (float) (z - z1);
 		
-		float a = getRainDensity(level, x1, y1, z1);
-		float b = getRainDensity(level, x2, y1, z1);
-		float c = getRainDensity(level, x1, y1, z2);
-		float d = getRainDensity(level, x2, y1, z2);
+		float a = getRainDensity(level, x1, y1, z1, includeSnow);
+		float b = getRainDensity(level, x2, y1, z1, includeSnow);
+		float c = getRainDensity(level, x1, y1, z2, includeSnow);
+		float d = getRainDensity(level, x2, y1, z2, includeSnow);
 		
 		return MathHelper.interpolate2D(dx, dz, a, b, c, d);
 	}
 	
-	public static float getRainDensity(Level level, int x, int y, int z) {
+	private static float getRainDensity(Level level, int x, int y, int z, boolean includeSnow) {
 		if (level.dimension.evaporatesWater) return 0;
 		
 		int count = 0;
 		for (Vec2i offset : OFFSETS) {
-			if (isRaining(level, x + offset.x, y, z + offset.z)) {
+			boolean snowCheck = includeSnow;// || !level.getBiomeSource().getBiome(x, z).canSnow();
+			if (snowCheck && isRaining(level, x + offset.x, y, z + offset.z)) {
 				count++;
 				if (count >= 64) return 1F;
 			}

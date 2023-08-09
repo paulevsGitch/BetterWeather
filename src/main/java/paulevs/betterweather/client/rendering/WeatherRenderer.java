@@ -67,7 +67,7 @@ public class WeatherRenderer {
 			for (byte dz = (byte) -radius; dz <= radius; dz++) {
 				if (Math.abs(dx) < radiusCenter && Math.abs(dz) < radiusCenter) continue;
 				int wz = (iz & -4) + (dz << 2);
-				renderLargeSection(level, wx, iy, wz, rainTop, tessellator, vOffset);
+				renderLargeSection(level, wx, iy, wz, rainTop, tessellator, vOffset, false);
 			}
 		}
 		
@@ -75,7 +75,33 @@ public class WeatherRenderer {
 			int wx = ix + dx;
 			for (byte dz = (byte) -radius; dz <= radius; dz++) {
 				int wz = iz + dz;
-				renderNormalSection(level, wx, iy, wz, rainTop, tessellator, vOffset);
+				renderNormalSection(level, wx, iy, wz, rainTop, tessellator, vOffset, false);
+			}
+		}
+		
+		tessellator.setOffset(0.0, 0.0, 0.0);
+		tessellator.draw();
+		
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, snowTexture);
+		vOffset = (float) (((double) level.getLevelTime() + delta) * 0.002 % 1.0);
+		
+		tessellator.start();
+		tessellator.setOffset(-x, -y, -z);
+		
+		for (byte dx = (byte) -radius; dx <= radius; dx++) {
+			int wx = (ix & -4) + (dx << 2);
+			for (byte dz = (byte) -radius; dz <= radius; dz++) {
+				if (Math.abs(dx) < radiusCenter && Math.abs(dz) < radiusCenter) continue;
+				int wz = (iz & -4) + (dz << 2);
+				renderLargeSection(level, wx, iy, wz, rainTop, tessellator, vOffset, true);
+			}
+		}
+		
+		for (byte dx = (byte) -radius; dx <= radius; dx++) {
+			int wx = ix + dx;
+			for (byte dz = (byte) -radius; dz <= radius; dz++) {
+				int wz = iz + dz;
+				renderNormalSection(level, wx, iy, wz, rainTop, tessellator, vOffset, true);
 			}
 		}
 		
@@ -87,10 +113,11 @@ public class WeatherRenderer {
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 	}
 	
-	private void renderLargeSection(Level level, int x, int y, int z, int rainTop, Tessellator tessellator, float vOffset) {
+	private void renderLargeSection(Level level, int x, int y, int z, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
 		int terrain = level.getHeight(x, z);
 		if (terrain - y > 40) return;
 		if (!WeatherAPI.isRaining(level, x, terrain, z)) return;
+		if (level.getBiomeSource().getBiome(x, z).canSnow() != snow) return;
 		
 		float dv = randomOffset[(x & 15) << 4 | (z & 15)] + vOffset;
 		float v1 = dv * 4F;
@@ -120,11 +147,12 @@ public class WeatherRenderer {
 		tessellator.vertex(x + 0.5F, terrain, z + 2.5F, u2, v1);
 	}
 	
-	private void renderNormalSection(Level level, int x, int y, int z, int rainTop, Tessellator tessellator, float vOffset) {
+	private void renderNormalSection(Level level, int x, int y, int z, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
 		int terrain = level.getHeight(x, z);
 		
 		if (terrain - y > 40) return;
 		if (!WeatherAPI.isRaining(level, x, terrain, z)) return;
+		if (level.getBiomeSource().getBiome(x, z).canSnow() != snow) return;
 		
 		float dv = randomOffset[(x & 15) << 4 | (z & 15)] + vOffset;
 		float v1 = dv;

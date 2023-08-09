@@ -42,7 +42,8 @@ public class GameRendererMixin {
 			minecraft.level,
 			minecraft.viewEntity.x,
 			minecraft.viewEntity.y,
-			minecraft.viewEntity.z
+			minecraft.viewEntity.z,
+			true
 		);
 		betterweather_fogDistance = 1F - betterweather_fogDistance * 0.75F;
 		
