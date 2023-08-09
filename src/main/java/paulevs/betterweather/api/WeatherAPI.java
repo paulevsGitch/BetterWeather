@@ -4,7 +4,6 @@ import net.minecraft.level.Level;
 import net.minecraft.util.maths.Vec2i;
 import net.modificationstation.stationapi.api.block.BlockState;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
-import net.modificationstation.stationapi.impl.level.StationDimension;
 import paulevs.betterweather.config.WeatherConfig;
 import paulevs.betterweather.util.ImageSampler;
 

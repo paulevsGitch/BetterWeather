@@ -4,7 +4,7 @@
 	"version": "${version}",
 
 	"name": "Better Weather",
-	"description": "Minecraft weather improvements",
+	"description": "Makes clouds fluffy and weather local with better visual effects",
 	"authors": [
 		"paulevs"
 	],

@@ -2,6 +2,7 @@ package paulevs.betterweather.client.rendering;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BaseBlock;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.LivingEntity;
@@ -18,20 +19,25 @@ import java.util.Random;
 public class WeatherRenderer {
 	private static final float TO_RADIANS = (float) (Math.PI / 180);
 	private final float[] randomOffset;
+	private final byte[] randomIndex;
 	private int rainTexture;
 	private int snowTexture;
+	private int waterCircles;
 	
 	public WeatherRenderer() {
 		randomOffset = new float[256];
+		randomIndex = new byte[256];
 		Random random = new Random(0);
 		for (short i = 0; i < 256; i++) {
 			randomOffset[i] = random.nextFloat();
+			randomIndex[i] = (byte) random.nextInt(4);
 		}
 	}
 	
 	public void update(TextureManager manager) {
 		this.rainTexture = manager.getTextureId("/environment/rain.png");
 		this.snowTexture = manager.getTextureId("/environment/snow.png");
+		this.waterCircles = manager.getTextureId("/assets/better_weather/textures/water_circles.png");
 	}
 	
 	public void render(float delta, Level level, LivingEntity viewEntity, boolean fancyGraphics) {
@@ -85,14 +91,27 @@ public class WeatherRenderer {
 			}
 		}
 		
-		tessellator.setOffset(0.0, 0.0, 0.0);
+		tessellator.draw();
+		
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, waterCircles);
+		vOffset = (float) (((double) level.getLevelTime() + delta) * 0.07 % 1.0);
+		
+		tessellator.start();
+		
+		for (byte dx = (byte) -radius; dx <= radius; dx++) {
+			int wx = ix + dx;
+			for (byte dz = (byte) -radius; dz <= radius; dz++) {
+				int wz = iz + dz;
+				renderWaterCircles(level, wx, iy, wz, pos, dir, tessellator, vOffset, radius);
+			}
+		}
+		
 		tessellator.draw();
 		
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, snowTexture);
 		vOffset = (float) (((double) level.getLevelTime() + delta) * 0.002 % 1.0);
 		
 		tessellator.start();
-		tessellator.setOffset(-x, -y, -z);
 		
 		for (byte dx = (byte) -radius; dx <= radius; dx++) {
 			int wx = (ix & -4) + (dx << 2);
@@ -217,6 +236,45 @@ public class WeatherRenderer {
 		tessellator.vertex(x1, rainTop, z1, u1, v2);
 		tessellator.vertex(x2, rainTop, z2, u2, v2);
 		tessellator.vertex(x2, terrain, z2, u2, v1);
+	}
+	
+	private void renderWaterCircles(Level level, int x, int y, int z, Vec3f pos, Vec3f dir, Tessellator tessellator, float vOffset, float radius) {
+		int height = level.getHeight(x, z);
+		if (height - y > 40 || y - height > 40) return;
+		if (!pointIsVisible(pos, dir, x + 0.5, height, z + 0.5)) return;
+		if (!level.getBlockState(x, height - 1, z).isOf(BaseBlock.STILL_WATER)) return;
+		
+		float dx = (float) (x - pos.x);
+		float dy = (float) (y - pos.y);
+		float dz = (float) (z - pos.z);
+		float alpha = 1F - MathHelper.sqrt(dx * dx + dy * dy + dz * dz) / radius;
+		alpha = alpha * 4F;
+		if (alpha <= 0.01F) return;
+		if (alpha > 1F) alpha = 1F;
+		
+		float light = level.getBrightness(x, height, z);
+		
+		float u1 = 0;
+		float u2 = 1;
+		float v1 = MathHelper.floor(vOffset * 6F) / 6F;
+		float v2 = v1 + 1F / 6F;
+		
+		byte index = randomIndex[(x & 15) << 4 | (z & 15)];
+		if ((index & 1) == 0) {
+			u2 = 0;
+			u1 = 1;
+		}
+		if (index > 1) {
+			float value = v1;
+			v1 = v2;
+			v2 = value;
+		}
+		
+		tessellator.color(light, light, light, alpha);
+		tessellator.vertex(x, height, z, u1, v1);
+		tessellator.vertex(x, height, z + 1, u1, v2);
+		tessellator.vertex(x + 1, height, z + 1, u2, v2);
+		tessellator.vertex(x + 1, height, z, u2, v1);
 	}
 	
 	private Vec3f getPosition(LivingEntity entity) {
