@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import paulevs.betterweather.api.WeatherAPI;
+import paulevs.betterweather.client.rendering.CloudRenderer;
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
@@ -82,8 +83,10 @@ public class GameRendererMixin {
 		shift = Shift.AFTER
 	))
 	private void betterweather_changeFogDepth(int f, float par2, CallbackInfo ci) {
+		CloudRenderer.fogDistance = this.fogDistance;
 		if (betterweather_fogDistance == 1) return;
 		GL11.glFogf(GL11.GL_FOG_START, this.fogDistance * betterweather_fogDistance * 0.25F);
 		GL11.glFogf(GL11.GL_FOG_END, this.fogDistance * betterweather_fogDistance);
+		CloudRenderer.fogDistance = this.fogDistance * betterweather_fogDistance;
 	}
 }

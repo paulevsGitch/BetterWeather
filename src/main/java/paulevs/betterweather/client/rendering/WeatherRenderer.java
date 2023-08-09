@@ -243,6 +243,7 @@ public class WeatherRenderer {
 		if (height - y > 40 || y - height > 40) return;
 		if (!pointIsVisible(pos, dir, x + 0.5, height, z + 0.5)) return;
 		if (!level.getBlockState(x, height - 1, z).isOf(BaseBlock.STILL_WATER)) return;
+		if (!WeatherAPI.isRaining(level, x, height, z)) return;
 		
 		float dx = (float) (x - pos.x);
 		float dy = (float) (y - pos.y);
@@ -256,6 +257,7 @@ public class WeatherRenderer {
 		
 		float u1 = 0;
 		float u2 = 1;
+		vOffset += randomOffset[(x & 15) << 4 | (z & 15)];
 		float v1 = MathHelper.floor(vOffset * 6F) / 6F;
 		float v2 = v1 + 1F / 6F;
 		

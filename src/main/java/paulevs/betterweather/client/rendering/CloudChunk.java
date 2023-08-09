@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.Tessellator;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
+import net.modificationstation.stationapi.api.util.math.Vec3f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Random;
@@ -13,10 +14,12 @@ public class CloudChunk {
 	private static final float[] RAIN_COLOR = new float[] { 66F / 255F, 74F / 255F, 74F / 255F };
 	private static final float[] DARK_COLOR = new float[] { 150F / 255F, 176F / 255F, 211F / 255F };
 	private static final Random RANDOM = new Random(0);
+	private static final Vec3f POS = new Vec3f();
 	
 	private final int listID;
 	
 	private boolean needUpdate = true;
+	private boolean isEmpty = true;
 	private int chunkX = Integer.MIN_VALUE;
 	private int chunkZ = Integer.MIN_VALUE;
 	private int posX;
@@ -42,6 +45,7 @@ public class CloudChunk {
 	public void update(int chunkX, int chunkZ, short[] data) {
 		this.chunkX = chunkX;
 		this.chunkZ = chunkZ;
+		isEmpty = true;
 		
 		Tessellator tessellator = Tessellator.INSTANCE;
 		GL11.glNewList(listID, GL11.GL_COMPILE);
@@ -77,15 +81,20 @@ public class CloudChunk {
 			
 			tessellator.color(r, g, b);
 			makeCloudBlock(tessellator, x, y, z);
+			isEmpty = false;
 		}
 		
 		tessellator.draw();
 		GL11.glEndList();
 	}
 	
-	public void render(double entityX, double entityZ, float height) {
+	public void render(double entityX, double entityZ, float height, FrustumCulling culling, float distanceSqr) {
+		if (isEmpty) return;
 		float dx = (float) (posX - entityX);
 		float dz = (float) (posZ - entityZ);
+		POS.set(dx + 16, height + 16, dz + 16);
+		if (POS.getX() * POS.getX() + POS.getZ() * POS.getZ() > distanceSqr) return;
+		if (culling.isOutside(POS, 24)) return;
 		GL11.glPushMatrix();
 		GL11.glTranslatef(dx, height, dz);
 		GL11.glScalef(2, 2, 2);
@@ -127,5 +136,9 @@ public class CloudChunk {
 		tessellator.vertex(px - 0.207107F, py - 0.5F, pz + 0.207107F, 1.0F, 0.0F);
 		tessellator.vertex(px - 0.207107F, py + 1.5F, pz + 0.207107F, 1.0F, 1.0F);
 		tessellator.vertex(px + 1.207107F, py + 1.5F, pz - 1.207107F, 0.0F, 1.0F);
+	}
+	
+	private boolean pointIsVisible(double nx, double ny, double nz, double x, double y, double z) {
+		return nx * x + ny * y + nz * z > 0;
 	}
 }

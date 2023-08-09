@@ -1,6 +1,7 @@
 package paulevs.betterweather.api;
 
 import net.minecraft.level.Level;
+import net.minecraft.level.chunk.Chunk;
 import net.minecraft.util.maths.Vec2i;
 import net.modificationstation.stationapi.api.block.BlockState;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
@@ -110,8 +111,11 @@ public class WeatherAPI {
 		int max = (int) (level.dimension.getCloudHeight() + 4);
 		int height = level.getHeight(x, z);
 		if (height >= max) return max;
+		Chunk chunk = level.getChunkFromCache(x >> 4, z >> 4);
+		x &= 15;
+		z &= 15;
 		for (int y = max; y > height; y--) {
-			BlockState state = level.getBlockState(x, y, z);
+			BlockState state = chunk.getBlockState(x, y, z);
 			if (state.isAir()) continue;
 			if (state.isOpaque() || state.getBlock().isFullCube() || state.getMaterial().isLiquid()) return y + 1;
 		}

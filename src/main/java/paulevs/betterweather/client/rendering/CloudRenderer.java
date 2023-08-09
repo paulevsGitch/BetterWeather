@@ -15,6 +15,7 @@ import paulevs.betterweather.util.MathUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 @Environment(EnvType.CLIENT)
 public class CloudRenderer {
@@ -24,8 +25,10 @@ public class CloudRenderer {
 	private static final int RADIUS = 9;
 	private static final int SIDE = RADIUS * 2 + 1;
 	private static final int CAPACITY = SIDE * SIDE;
+	public static float fogDistance;
 	
 	private final CloudChunk[] chunks = new CloudChunk[CAPACITY];
+	private final FrustumCulling culling = new FrustumCulling();
 	private final Vec2i[] offsets;
 	
 	private CloudTexture cloudTexture;
@@ -47,6 +50,7 @@ public class CloudRenderer {
 			return Integer.compare(d1, d2);
 		});
 		this.offsets = offsets.toArray(Vec2i[]::new);
+		culling.setFOV((float) Math.toRadians(50F));
 	}
 	
 	public void update(TextureManager manager) {
@@ -77,8 +81,11 @@ public class CloudRenderer {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		cloudTexture.bindAndUpdate(minecraft.level.getSunPosition(delta));
+		culling.rotate(minecraft.viewEntity.yaw, minecraft.viewEntity.pitch);
 		
 		boolean canUpdate = true;
+		float distance = fogDistance * 1.5F;
+		distance *= distance;
 		
 		for (Vec2i offset : offsets) {
 			int cx = centerX + offset.x;
@@ -93,7 +100,7 @@ public class CloudRenderer {
 				canUpdate = false;
 			}
 			if (!chunk.needUpdate()) {
-				chunk.render(entityX, entityZ, height);
+				chunk.render(entityX, entityZ, height, culling, distance);
 			}
 		}
 		
@@ -102,10 +109,57 @@ public class CloudRenderer {
 	}
 	
 	private void updateData(int cx, int cz) {
-		cx <<= 4;
-		cz <<= 4;
+		//cx <<= 4;
+		//cz <<= 4;
 		
-		for (short index = 0; index < 8192; index++) {
+		final int posX = cx << 4;
+		final int posZ = cz << 4;
+		
+		IntStream.range(0, 8192).parallel().forEach(index -> {
+			int x = index & 15;
+			int y = (index >> 4) & 31;
+			int z = index >> 9;
+			
+			x |= posX;
+			z |= posZ;
+			
+			float rainFront = WeatherAPI.sampleFront(x, z, 0.2);
+			float density = WeatherAPI.getCloudDensity(x << 1, y << 1, z << 1, rainFront);
+			float coverage = WeatherAPI.getCoverage(rainFront);
+			
+			if (density < coverage) {
+				CLOUD_DATA[index] = -1;
+			}
+			else {
+				CLOUD_DATA[index] = (byte) ((byte) (rainFront * 15) << 4);
+			}
+		});
+		
+		IntStream.range(0, 8192).parallel().forEach(index -> {
+			if (CLOUD_DATA[index] == -1) return;
+			
+			int x = index & 15;
+			int y = (index >> 4) & 31;
+			int z = index >> 9;
+			
+			x |= cx;
+			z |= cz;
+			
+			byte light = 15;
+			for (byte i = 1; i < 15; i++) {
+				if (y + i > 31) break;
+				int index2 = index + (i << 4);
+				if (CLOUD_DATA[index2] != -1) light--;
+			}
+			
+			if (light > 0) {
+				light -= NOISE.sample(x * 0.3, y * 0.3, z * 0.3);
+			}
+			
+			CLOUD_DATA[index] |= light;
+		});
+		
+		/*for (short index = 0; index < 8192; index++) {
 			int x = index & 15;
 			int y = (index >> 4) & 31;
 			int z = index >> 9;
@@ -147,6 +201,6 @@ public class CloudRenderer {
 			}
 			
 			CLOUD_DATA[index] |= light;
-		}
+		}*/
 	}
 }
