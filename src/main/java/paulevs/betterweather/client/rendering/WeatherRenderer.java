@@ -120,7 +120,7 @@ public class WeatherRenderer {
 	}
 	
 	private void renderLargeSection(Level level, int x, int y, int z, Vec3f pos, Vec3f dir, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
-		int terrain = level.getHeight(x, z);
+		int terrain = WeatherAPI.getRainHeight(level, x, z);
 		if (terrain - y > 40) return;
 		
 		boolean visible = pointIsVisible(pos, dir, x + 0.5, terrain, z + 0.5);
@@ -170,7 +170,7 @@ public class WeatherRenderer {
 	}
 	
 	private void renderNormalSection(Level level, int x, int y, int z, Vec3f pos, Vec3f dir, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
-		int terrain = level.getHeight(x, z);
+		int terrain = WeatherAPI.getRainHeight(level, x, z);
 		if (terrain - y > 40) return;
 		
 		boolean visible = pointIsVisible(pos, dir, x + 0.5, terrain, z + 0.5);

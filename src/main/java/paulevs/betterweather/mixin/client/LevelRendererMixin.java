@@ -19,8 +19,6 @@ import paulevs.betterweather.client.rendering.WeatherRenderer;
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
 	@Shadow private Minecraft minecraft;
-	
-	@Shadow private int glSkyPlaneList;
 	@Shadow private int glEndList;
 	@Unique private final CloudRenderer weather_cloudArea = new CloudRenderer();
 	@Unique private final WeatherRenderer betterweather_weatherRenderer = new WeatherRenderer();

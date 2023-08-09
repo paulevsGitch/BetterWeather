@@ -2,7 +2,9 @@ package paulevs.betterweather.api;
 
 import net.minecraft.level.Level;
 import net.minecraft.util.maths.Vec2i;
+import net.modificationstation.stationapi.api.block.BlockState;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
+import net.modificationstation.stationapi.impl.level.StationDimension;
 import paulevs.betterweather.config.WeatherConfig;
 import paulevs.betterweather.util.ImageSampler;
 
@@ -22,7 +24,7 @@ public class WeatherAPI {
 	public static boolean isRaining(Level level, int x, int y, int z) {
 		if (level.dimension.evaporatesWater) return false;
 		if (y > level.dimension.getCloudHeight() + 8) return false;
-		if (y < level.getHeight(x, z)) return false;
+		if (y < getRainHeight(level, x, z)) return false;
 		
 		z -= ((double) level.getLevelTime()) * WeatherConfig.getCloudsSpeed() * 32;
 		if (WeatherConfig.isEternalRain()) {
@@ -103,6 +105,18 @@ public class WeatherAPI {
 	
 	public static float getCoverage(float rainFront) {
 		return MathHelper.lerp(rainFront, 1.3F, 0.5F);
+	}
+	
+	public static int getRainHeight(Level level, int x, int z) {
+		int max = (int) (level.dimension.getCloudHeight() + 4);
+		int height = level.getHeight(x, z);
+		if (height >= max) return max;
+		for (int y = max; y > height; y--) {
+			BlockState state = level.getBlockState(x, y, z);
+			if (state.isAir()) continue;
+			if (state.isOpaque() || state.getBlock().isFullCube() || state.getMaterial().isLiquid()) return y + 1;
+		}
+		return height;
 	}
 	
 	public static float getRainDensity(Level level, double x, double y, double z, boolean includeSnow) {

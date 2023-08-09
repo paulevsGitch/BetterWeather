@@ -49,7 +49,7 @@ public class WeatherSounds {
 			soundSystem.play(RAIN_KEY);
 		}
 		
-		boolean newRoof = entity.y < level.getHeight(MathHelper.floor(entity.x), MathHelper.floor(entity.z));
+		boolean newRoof = entity.y < WeatherAPI.getRainHeight(level, MathHelper.floor(entity.x), MathHelper.floor(entity.z));
 		if (newRoof != underRoof) {
 			soundSystem.setPitch(RAIN_KEY, newRoof ? 0.25F : 1.0F);
 			underRoof = newRoof;
