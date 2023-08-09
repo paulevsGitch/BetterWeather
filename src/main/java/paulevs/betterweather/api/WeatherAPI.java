@@ -23,9 +23,11 @@ public class WeatherAPI {
 		if (level.dimension.evaporatesWater) return false;
 		if (y > level.dimension.getCloudHeight() + 8) return false;
 		if (y < level.getHeight(x, z)) return false;
-		if (WeatherConfig.isEternalRain()) return true;
 		
 		z -= ((double) level.getLevelTime()) * WeatherConfig.getCloudsSpeed() * 32;
+		if (WeatherConfig.isEternalRain()) {
+			return !WeatherConfig.useVanillaClouds() || getCloudDensity(x, 2, z, 1F) > 0.5F;
+		}
 		
 		float rainFront = sampleFront(x, z, 0.1);
 		if (rainFront < 0.2F) return false;

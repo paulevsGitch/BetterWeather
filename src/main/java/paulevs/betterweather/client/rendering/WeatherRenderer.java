@@ -10,6 +10,7 @@ import net.minecraft.util.maths.MathHelper;
 import net.minecraft.util.maths.Vec3f;
 import org.lwjgl.opengl.GL11;
 import paulevs.betterweather.api.WeatherAPI;
+import paulevs.betterweather.config.WeatherConfig;
 
 import java.util.Random;
 
@@ -44,7 +45,8 @@ public class WeatherRenderer {
 		
 		int radius = fancyGraphics ? 10 : 5;
 		int radiusCenter = radius / 2 - 1;
-		int rainTop = (int) (level.dimension.getCloudHeight() + 8.5F);
+		float sampleHeight = WeatherConfig.useVanillaClouds() ? 2.5F : 8.5F;
+		int rainTop = (int) (level.dimension.getCloudHeight() + sampleHeight);
 		
 		if (iy - rainTop > 40) return;
 		
