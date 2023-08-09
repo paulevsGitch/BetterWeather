@@ -99,8 +99,12 @@ public class WeatherAPI {
 	
 	public static float sampleFront(int x, int z, double scale) {
 		if (WeatherConfig.isEternalRain()) return 1F;
-		double scale2 = scale * 0.7;
-		return FRONTS_SAMPLER.sample(x * scale, z * scale) * RAIN_DENSITY.sample(x * scale2, z * scale2);
+		float front = FRONTS_SAMPLER.sample(x * scale, z * scale);
+		if (!WeatherConfig.isFrequentRain()) {
+			scale *= 0.7;
+			front *= RAIN_DENSITY.sample(x * scale, z * scale);
+		}
+		return front;
 	}
 	
 	public static float getCoverage(float rainFront) {
