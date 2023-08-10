@@ -50,7 +50,7 @@ public class CloudRenderer {
 			return Integer.compare(d1, d2);
 		});
 		this.offsets = offsets.toArray(Vec2i[]::new);
-		culling.setFOV((float) Math.toRadians(45F));
+		culling.setFOV((float) Math.toRadians(60F));
 	}
 	
 	public void update(TextureManager manager) {
