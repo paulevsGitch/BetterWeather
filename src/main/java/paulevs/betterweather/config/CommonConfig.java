@@ -2,8 +2,8 @@ package paulevs.betterweather.config;
 
 import java.io.File;
 
-public class WeatherConfig {
-	private static final Config CONFIG = new Config(new File("config/better_weather.cfg"));
+public class CommonConfig {
+	private static final Config CONFIG = new Config(new File("config/better_weather/common.cfg"));
 	private static boolean useVanillaClouds;
 	private static double cloudsSpeed;
 	private static boolean eternalRain;

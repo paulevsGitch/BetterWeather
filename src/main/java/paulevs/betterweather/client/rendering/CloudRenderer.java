@@ -9,7 +9,7 @@ import net.minecraft.util.noise.PerlinNoise;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
 import paulevs.betterweather.api.WeatherAPI;
-import paulevs.betterweather.config.WeatherConfig;
+import paulevs.betterweather.config.CommonConfig;
 import paulevs.betterweather.util.MathUtil;
 
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class CloudRenderer {
 		int centerX = net.minecraft.util.maths.MathHelper.floor(entityX / 32);
 		int centerZ = net.minecraft.util.maths.MathHelper.floor(entityZ / 32);
 		
-		double moveDelta = ((double) minecraft.level.getLevelTime() + delta) * WeatherConfig.getCloudsSpeed();
+		double moveDelta = ((double) minecraft.level.getLevelTime() + delta) * CommonConfig.getCloudsSpeed();
 		int worldOffset = (int) Math.floor(moveDelta);
 		entityZ -= (moveDelta - worldOffset) * 32;
 		

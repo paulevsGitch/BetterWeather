@@ -5,19 +5,19 @@ import net.minecraft.level.chunk.Chunk;
 import net.minecraft.util.maths.Vec2i;
 import net.modificationstation.stationapi.api.block.BlockState;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
-import paulevs.betterweather.config.WeatherConfig;
+import paulevs.betterweather.config.CommonConfig;
 import paulevs.betterweather.util.ImageSampler;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class WeatherAPI {
-	private static final ImageSampler MAIN_SHAPE_SAMPLER = new ImageSampler("assets/better_weather/textures/main_shape.png");
-	private static final ImageSampler LARGE_DETAILS_SAMPLER = new ImageSampler("assets/better_weather/textures/large_details.png");
-	private static final ImageSampler VARIATION_SAMPLER = new ImageSampler("assets/better_weather/textures/variation.png");
-	private static final ImageSampler FRONTS_SAMPLER = new ImageSampler("assets/better_weather/textures/rain_fronts.png");
-	private static final ImageSampler RAIN_DENSITY = new ImageSampler("assets/better_weather/textures/rain_density.png");
-	private static final ImageSampler VANILLA_CLOUDS = new ImageSampler("assets/better_weather/textures/vanilla_clouds.png").setSmooth(true);
+	private static final ImageSampler MAIN_SHAPE_SAMPLER = new ImageSampler("data/better_weather/clouds/main_shape.png");
+	private static final ImageSampler LARGE_DETAILS_SAMPLER = new ImageSampler("data/better_weather/clouds/large_details.png");
+	private static final ImageSampler VARIATION_SAMPLER = new ImageSampler("data/better_weather/clouds/variation.png");
+	private static final ImageSampler FRONTS_SAMPLER = new ImageSampler("data/better_weather/clouds/rain_fronts.png");
+	private static final ImageSampler RAIN_DENSITY = new ImageSampler("data/better_weather/clouds/rain_density.png");
+	private static final ImageSampler VANILLA_CLOUDS = new ImageSampler("data/better_weather/clouds/vanilla_clouds.png").setSmooth(true);
 	private static final float[] CLOUD_SHAPE = new float[64];
 	private static final Vec2i[] OFFSETS;
 	
@@ -26,21 +26,21 @@ public class WeatherAPI {
 		if (y > level.dimension.getCloudHeight() + 8) return false;
 		if (y < getRainHeight(level, x, z)) return false;
 		
-		z -= ((double) level.getLevelTime()) * WeatherConfig.getCloudsSpeed() * 32;
-		if (WeatherConfig.isEternalRain()) {
-			return !WeatherConfig.useVanillaClouds() || getCloudDensity(x, 2, z, 1F) > 0.5F;
+		z -= ((double) level.getLevelTime()) * CommonConfig.getCloudsSpeed() * 32;
+		if (CommonConfig.isEternalRain()) {
+			return !CommonConfig.useVanillaClouds() || getCloudDensity(x, 2, z, 1F) > 0.5F;
 		}
 		
 		float rainFront = sampleFront(x, z, 0.1);
 		if (rainFront < 0.2F) return false;
 		
 		float coverage = getCoverage(rainFront);
-		int sampleHeight = WeatherConfig.useVanillaClouds() ? 2 : 7;
+		int sampleHeight = CommonConfig.useVanillaClouds() ? 2 : 7;
 		return getCloudDensity(x, sampleHeight, z, rainFront) > coverage;
 	}
 	
 	public static float inCloud(Level level, double x, double y, double z) {
-		z -= ((double) level.getLevelTime()) * WeatherConfig.getCloudsSpeed() * 32;
+		z -= ((double) level.getLevelTime()) * CommonConfig.getCloudsSpeed() * 32;
 		int x1 = net.minecraft.util.maths.MathHelper.floor(x / 2.0) << 1;
 		int y1 = net.minecraft.util.maths.MathHelper.floor(y / 2.0) << 1;
 		int z1 = net.minecraft.util.maths.MathHelper.floor(z / 2.0) << 1;
@@ -75,7 +75,7 @@ public class WeatherAPI {
 	}
 	
 	public static float getCloudDensity(int x, int y, int z, float rainFront) {
-		if (WeatherConfig.useVanillaClouds()) {
+		if (CommonConfig.useVanillaClouds()) {
 			if (y > 6) return 0;
 			float shape = y == 0 || y == 5 ? 1 : 0;
 			return VANILLA_CLOUDS.sample(x / 16.0, z / 16.0) * 3 - shape;
@@ -98,9 +98,9 @@ public class WeatherAPI {
 	}
 	
 	public static float sampleFront(int x, int z, double scale) {
-		if (WeatherConfig.isEternalRain()) return 1F;
+		if (CommonConfig.isEternalRain()) return 1F;
 		float front = FRONTS_SAMPLER.sample(x * scale, z * scale);
-		if (!WeatherConfig.isFrequentRain()) {
+		if (!CommonConfig.isFrequentRain()) {
 			scale *= 0.7;
 			front *= RAIN_DENSITY.sample(x * scale, z * scale);
 		}

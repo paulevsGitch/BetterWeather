@@ -6,6 +6,7 @@ import net.minecraft.client.render.Tessellator;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
 import net.modificationstation.stationapi.api.util.math.Vec3f;
 import org.lwjgl.opengl.GL11;
+import paulevs.betterweather.config.ClientConfig;
 
 import java.util.Random;
 
@@ -61,7 +62,7 @@ public class CloudChunk {
 			boolean canDraw = x == 0 || x == 15 || y == 0 || y == 31 || z == 0 || z == 15;
 			if (!canDraw) {
 				canDraw = data[i + 1] == -1 || data[i - 1] == -1 ||
-					data[i + 32] == -1 || data[i - 32] == -1 ||
+					data[i + 16] == -1 || data[i - 16] == -1 ||
 					data[i + 512] == -1 || data[i - 512] == -1;
 			}
 			
@@ -80,7 +81,12 @@ public class CloudChunk {
 			b = MathHelper.lerp(deltaBrightness, b, 1F);
 			
 			tessellator.color(r, g, b);
-			makeCloudBlock(tessellator, x, y, z);
+			if (ClientConfig.isFluffyClouds()) {
+				makeFluffyCloudBlock(tessellator, x, y, z);
+			}
+			else {
+				makeNormalCloudBlock(tessellator, x, y, z, data, i);
+			}
 			isEmpty = false;
 		}
 		
@@ -102,7 +108,7 @@ public class CloudChunk {
 		GL11.glPopMatrix();
 	}
 	
-	private void makeCloudBlock(Tessellator tessellator, int x, int y, int z) {
+	private void makeFluffyCloudBlock(Tessellator tessellator, int x, int y, int z) {
 		float px = x + RANDOM.nextFloat() * 0.1F - 0.05F;
 		float py = y + RANDOM.nextFloat() * 0.1F - 0.05F;
 		float pz = z + RANDOM.nextFloat() * 0.1F - 0.05F;
@@ -138,7 +144,44 @@ public class CloudChunk {
 		tessellator.vertex(px + 1.207107F, py + 1.5F, pz - 1.207107F, 0.0F, 1.0F);
 	}
 	
-	private boolean pointIsVisible(double nx, double ny, double nz, double x, double y, double z) {
-		return nx * x + ny * y + nz * z > 0;
+	private void makeNormalCloudBlock(Tessellator tessellator, int x, int y, int z, short[] data, int index) {
+		if (x == 0 || data[index - 1] == -1) {
+			tessellator.vertex(x, y, z, 0.5F, 0.5F);
+			tessellator.vertex(x, y + 1, z, 0.5F, 0.5F);
+			tessellator.vertex(x, y + 1, z + 1, 0.5F, 0.5F);
+			tessellator.vertex(x, y, z + 1, 0.5F, 0.5F);
+		}
+		if (x == 15 || data[index + 1] == -1) {
+			tessellator.vertex(x + 1, y, z, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y + 1, z, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y + 1, z + 1, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y, z + 1, 0.5F, 0.5F);
+		}
+		
+		if (y == 0 || data[index - 16] == -1) {
+			tessellator.vertex(x, y, z, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y, z, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y, z + 1, 0.5F, 0.5F);
+			tessellator.vertex(x, y, z + 1, 0.5F, 0.5F);
+		}
+		if (y == 31 || data[index + 16] == -1) {
+			tessellator.vertex(x, y + 1, z, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y + 1, z, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y + 1, z + 1, 0.5F, 0.5F);
+			tessellator.vertex(x, y + 1, z + 1, 0.5F, 0.5F);
+		}
+		
+		if (z == 0 || data[index - 512] == -1) {
+			tessellator.vertex(x, y, z, 0.5F, 0.5F);
+			tessellator.vertex(x, y + 1, z, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y + 1, z, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y, z, 0.5F, 0.5F);
+		}
+		if (z == 15 || data[index + 512] == -1) {
+			tessellator.vertex(x, y, z + 1, 0.5F, 0.5F);
+			tessellator.vertex(x, y + 1, z + 1, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y + 1, z + 1, 0.5F, 0.5F);
+			tessellator.vertex(x + 1, y, z + 1, 0.5F, 0.5F);
+		}
 	}
 }

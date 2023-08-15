@@ -21,6 +21,9 @@
 	"entrypoints": {
 		"stationapi:event_bus": [
 			"paulevs.betterweather.listeners.CommonListener"
+		],
+		"stationapi:event_bus_client": [
+			"paulevs.betterweather.listeners.ClientListener"
 		]
 	},
 
