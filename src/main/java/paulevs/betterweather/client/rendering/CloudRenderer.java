@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.texture.TextureManager;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.maths.Vec2i;
 import net.minecraft.util.noise.PerlinNoise;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
@@ -13,6 +14,7 @@ import paulevs.betterweather.config.CommonConfig;
 import paulevs.betterweather.util.MathUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -63,10 +65,11 @@ public class CloudRenderer {
 		return MathUtil.wrap(x, SIDE) * SIDE + MathUtil.wrap(y, SIDE);
 	}
 	
-	public void render(Minecraft minecraft, float delta) {
-		double entityX = MathHelper.lerp(delta, minecraft.viewEntity.prevRenderX, minecraft.viewEntity.x);
-		double entityY = MathHelper.lerp(delta, minecraft.viewEntity.prevRenderY, minecraft.viewEntity.y);
-		double entityZ = MathHelper.lerp(delta, minecraft.viewEntity.prevRenderZ, minecraft.viewEntity.z);
+	public void render(float delta, Minecraft minecraft) {
+		LivingEntity entity = minecraft.viewEntity;
+		double entityX = MathHelper.lerp(delta, entity.prevRenderX, entity.x);
+		double entityY = MathHelper.lerp(delta, entity.prevRenderY, entity.y);
+		double entityZ = MathHelper.lerp(delta, entity.prevRenderZ, entity.z);
 		float height = (float) (minecraft.level.dimension.getCloudHeight() - entityY);
 		
 		int centerX = net.minecraft.util.maths.MathHelper.floor(entityX / 32);
@@ -81,7 +84,7 @@ public class CloudRenderer {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
 		cloudTexture.bindAndUpdate(minecraft.level.getSunPosition(delta));
-		culling.rotate(minecraft.viewEntity.yaw, minecraft.viewEntity.pitch);
+		culling.rotate(entity.yaw, entity.pitch);
 		
 		boolean canUpdate = true;
 		float distance = fogDistance * 1.5F;
@@ -108,10 +111,11 @@ public class CloudRenderer {
 		GL11.glEnable(GL11.GL_BLEND);
 	}
 	
+	public void updateAll() {
+		Arrays.stream(chunks).forEach(CloudChunk::forceUpdate);
+	}
+	
 	private void updateData(int cx, int cz) {
-		//cx <<= 4;
-		//cz <<= 4;
-		
 		final int posX = cx << 4;
 		final int posZ = cz << 4;
 		
@@ -158,49 +162,5 @@ public class CloudRenderer {
 			
 			CLOUD_DATA[index] |= light;
 		});
-		
-		/*for (short index = 0; index < 8192; index++) {
-			int x = index & 15;
-			int y = (index >> 4) & 31;
-			int z = index >> 9;
-			
-			x |= cx;
-			z |= cz;
-			
-			float rainFront = WeatherAPI.sampleFront(x, z, 0.2);
-			float density = WeatherAPI.getCloudDensity(x << 1, y << 1, z << 1, rainFront);
-			float coverage = WeatherAPI.getCoverage(rainFront);
-			
-			if (density < coverage) {
-				CLOUD_DATA[index] = -1;
-				continue;
-			}
-			
-			CLOUD_DATA[index] = (byte) ((byte) (rainFront * 15) << 4);
-		}
-		
-		for (short index = 0; index < 8192; index++) {
-			if (CLOUD_DATA[index] == -1) continue;
-			
-			int x = index & 15;
-			int y = (index >> 4) & 31;
-			int z = index >> 9;
-			
-			x |= cx;
-			z |= cz;
-			
-			byte light = 15;
-			for (byte i = 1; i < 15; i++) {
-				if (y + i > 31) break;
-				int index2 = index + (i << 4);
-				if (CLOUD_DATA[index2] != -1) light--;
-			}
-			
-			if (light > 0) {
-				light -= NOISE.sample(x * 0.3, y * 0.3, z * 0.3);
-			}
-			
-			CLOUD_DATA[index] |= light;
-		}*/
 	}
 }

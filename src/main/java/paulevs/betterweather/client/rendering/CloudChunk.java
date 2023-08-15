@@ -34,6 +34,12 @@ public class CloudChunk {
 		needUpdate = chunkX != x || chunkZ != z;
 	}
 	
+	public void forceUpdate() {
+		chunkX = Integer.MIN_VALUE;
+		chunkZ = Integer.MIN_VALUE;
+		isEmpty = true;
+	}
+	
 	public boolean needUpdate() {
 		return needUpdate;
 	}
@@ -81,7 +87,7 @@ public class CloudChunk {
 			b = MathHelper.lerp(deltaBrightness, b, 1F);
 			
 			tessellator.color(r, g, b);
-			if (ClientConfig.isFluffyClouds()) {
+			if (ClientConfig.renderFluffy()) {
 				makeFluffyCloudBlock(tessellator, x, y, z);
 			}
 			else {

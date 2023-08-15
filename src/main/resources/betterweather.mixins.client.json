@@ -6,6 +6,7 @@
 	"client": [
 		"LevelRendererMixin",
 		"GameRendererMixin",
+		"GameOptionsMixin",
 		"SoundHelperMixin",
 		"MainMenuMixin"
 	],

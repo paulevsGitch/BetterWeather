@@ -3,6 +3,7 @@ package paulevs.betterweather.client.rendering;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BaseBlock;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.LivingEntity;
@@ -40,25 +41,27 @@ public class WeatherRenderer {
 		this.waterCircles = manager.getTextureId("/assets/better_weather/textures/water_circles.png");
 	}
 	
-	public void render(float delta, Level level, LivingEntity viewEntity, boolean fancyGraphics) {
-		double x = net.modificationstation.stationapi.api.util.math.MathHelper.lerp(delta, viewEntity.prevRenderX, viewEntity.x);
-		double y = net.modificationstation.stationapi.api.util.math.MathHelper.lerp(delta, viewEntity.prevRenderY, viewEntity.y);
-		double z = net.modificationstation.stationapi.api.util.math.MathHelper.lerp(delta, viewEntity.prevRenderZ, viewEntity.z);
+	public void render(float delta, Minecraft minecraft) {
+		LivingEntity entity = minecraft.viewEntity;
+		double x = net.modificationstation.stationapi.api.util.math.MathHelper.lerp(delta, entity.prevRenderX, entity.x);
+		double y = net.modificationstation.stationapi.api.util.math.MathHelper.lerp(delta, entity.prevRenderY, entity.y);
+		double z = net.modificationstation.stationapi.api.util.math.MathHelper.lerp(delta, entity.prevRenderZ, entity.z);
 		
-		int ix = MathHelper.floor(viewEntity.x);
-		int iy = MathHelper.floor(viewEntity.y);
-		int iz = MathHelper.floor(viewEntity.z);
+		int ix = MathHelper.floor(entity.x);
+		int iy = MathHelper.floor(entity.y);
+		int iz = MathHelper.floor(entity.z);
 		
-		int radius = fancyGraphics ? 10 : 5;
+		int radius = minecraft.options.fancyGraphics ? 10 : 5;
 		int radiusCenter = radius / 2 - 1;
 		float sampleHeight = CommonConfig.useVanillaClouds() ? 2.5F : 8.5F;
+		Level level = minecraft.level;
 		int rainTop = (int) (level.dimension.getCloudHeight() + sampleHeight);
 		
 		if (iy - rainTop > 40) return;
 		
 		float vOffset = (float) (((double) level.getLevelTime() + delta) * 0.05 % 1.0);
-		Vec3f pos = getPosition(viewEntity);
-		Vec3f dir = getViewDirection(viewEntity);
+		Vec3f pos = getPosition(entity);
+		Vec3f dir = getViewDirection(entity);
 		
 		Tessellator tessellator = Tessellator.INSTANCE;
 		
