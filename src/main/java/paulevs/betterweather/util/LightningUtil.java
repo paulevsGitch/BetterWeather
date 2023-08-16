@@ -9,11 +9,11 @@ public class LightningUtil {
 	private static int lightningTicks;
 	
 	public static void tick() {
-		lightningTicks = (lightningTicks + 1) & 63;
+		lightningTicks = (lightningTicks + 1) & 31;
 	}
 	
 	public static void processChunk(Level level, int cx, int cz) {
-		if (lightningTicks == 0 || level.random.nextInt(1000) > 0) return;
+		if (lightningTicks > 0 || level.random.nextInt(1000) > 0) return;
 		
 		int px, py, pz;
 		int lx = 0, ly = Integer.MIN_VALUE, lz = 0;

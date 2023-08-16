@@ -30,6 +30,7 @@ public class WeatherSounds {
 	}
 	
 	public static void stop() {
+		if (soundSystem == null) return;
 		if (soundSystem.playing(RAIN_KEY)) soundSystem.stop(RAIN_KEY);
 	}
 	
