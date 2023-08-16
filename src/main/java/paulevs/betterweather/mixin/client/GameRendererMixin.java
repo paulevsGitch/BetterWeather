@@ -44,7 +44,8 @@ public class GameRendererMixin {
 		value = "INVOKE",
 		target = "Lorg/lwjgl/opengl/GL11;glFogf(IF)V",
 		ordinal = 4,
-		shift = Shift.AFTER
+		shift = Shift.AFTER,
+		remap = false
 	))
 	private void betterweather_changeFogDepth(int f, float par2, CallbackInfo ci) {
 		BetterWeatherRenderer.updateFogDepth(fogDistance);

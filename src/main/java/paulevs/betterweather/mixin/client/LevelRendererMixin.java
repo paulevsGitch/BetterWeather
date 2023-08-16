@@ -31,7 +31,11 @@ public class LevelRendererMixin {
 		info.cancel();
 	}
 	
-	@ModifyArgs(method = "renderSky", at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL11;glColor3f(FFF)V"))
+	@ModifyArgs(method = "renderSky", at = @At(
+		value = "INVOKE",
+		target = "Lorg/lwjgl/opengl/GL11;glColor3f(FFF)V",
+		remap = false
+	))
 	private void betterweather_changeFogDensity(Args args) {
 		BetterWeatherRenderer.changeFogDensity(args, minecraft);
 	}
