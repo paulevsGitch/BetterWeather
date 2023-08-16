@@ -10,6 +10,7 @@ import net.minecraft.level.Level;
 import net.minecraft.util.maths.Vec2i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,9 +25,11 @@ import java.util.Random;
 
 @Mixin(Level.class)
 public abstract class LevelMixin {
-	@Shadow public abstract boolean addEntity(BaseEntity arg);
+	@Unique private boolean betterweather_flag;
 	
 	@Shadow public Random random;
+	
+	@Shadow public abstract boolean addEntity(BaseEntity arg);
 	
 	@Inject(method = "isRaining", at = @At("HEAD"), cancellable = true)
 	private void betterweather_isRaining(CallbackInfoReturnable<Boolean> info)  {
@@ -61,10 +64,21 @@ public abstract class LevelMixin {
 	@Environment(EnvType.CLIENT)
 	@Inject(method = "getRainGradient", at = @At("HEAD"), cancellable = true)
 	private void betterweather_getRainGradient(float delta, CallbackInfoReturnable<Float> info) {
+		if (betterweather_flag) {
+			betterweather_flag = false;
+			info.setReturnValue(0F);
+			return;
+		}
+		
 		@SuppressWarnings("deprecation")
 		Minecraft minecraft = (Minecraft) FabricLoader.getInstance().getGameInstance();
 		LivingEntity entity = minecraft.viewEntity;
 		if (entity == null || minecraft.level == null) return;
 		info.setReturnValue(WeatherAPI.getRainDensity(minecraft.level, entity.x, entity.y, entity.z, true));
+	}
+	
+	@Inject(method = "getEnvironmentLight", at = @At("HEAD"), cancellable = true)
+	private void betterweather_getEnvironmentLight(float delta, CallbackInfoReturnable<Integer> info) {
+		betterweather_flag = true;
 	}
 }

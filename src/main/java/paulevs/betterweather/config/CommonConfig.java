@@ -10,6 +10,7 @@ public class CommonConfig {
 	private static boolean eternalThunder;
 	private static boolean frequentRain;
 	private static int rodCheckSide;
+	private static int lightningChance;
 	
 	public static void init() {
 		CONFIG.addEntry("useVanillaClouds", false,
@@ -38,6 +39,13 @@ public class CommonConfig {
 			"Max value is " + Short.MAX_VALUE + " and min is 0",
 			"Default value is 32"
 		);
+		CONFIG.addEntry("lightningChance", 300,
+			"Chance that lighting will happen in this chunk (during thunderstorm)",
+			"The actual chance is calculated as 1/lightningChance",
+			"Smaller values will result with more lighting and visa versa",
+			"Max value is " + Short.MAX_VALUE + " and min is 1",
+			"Default value is 300"
+		);
 		CONFIG.save();
 		
 		useVanillaClouds = CONFIG.getBool("useVanillaClouds");
@@ -46,9 +54,13 @@ public class CommonConfig {
 		eternalThunder = CONFIG.getBool("eternalThunder");
 		frequentRain = CONFIG.getBool("frequentRain");
 		rodCheckSide = CONFIG.getInt("rodCheckSide");
+		lightningChance = CONFIG.getInt("lightningChance");
 		
 		if (rodCheckSide > Short.MAX_VALUE) rodCheckSide = Short.MAX_VALUE;
 		if (rodCheckSide < 0) rodCheckSide = 0;
+		
+		if (lightningChance > Short.MAX_VALUE) lightningChance = Short.MAX_VALUE;
+		if (lightningChance < 1) rodCheckSide = 1;
 	}
 	
 	public static boolean useVanillaClouds() {
@@ -73,5 +85,9 @@ public class CommonConfig {
 	
 	public static short getRodCheckSide() {
 		return (short) rodCheckSide;
+	}
+	
+	public static int getLightningChance() {
+		return lightningChance;
 	}
 }

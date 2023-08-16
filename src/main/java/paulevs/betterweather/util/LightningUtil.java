@@ -13,7 +13,8 @@ public class LightningUtil {
 	}
 	
 	public static void processChunk(Level level, int cx, int cz) {
-		if (lightningTicks > 0 || level.random.nextInt(1000) > 0) return;
+		if (lightningTicks > 0) return;
+		if (CommonConfig.getLightningChance() > 1 && level.random.nextInt(CommonConfig.getLightningChance()) > 0) return;
 		
 		int px, py, pz;
 		int lx = 0, ly = Integer.MIN_VALUE, lz = 0;

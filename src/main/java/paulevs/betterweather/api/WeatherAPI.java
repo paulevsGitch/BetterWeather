@@ -36,7 +36,7 @@ public class WeatherAPI {
 		if (y > level.dimension.getCloudHeight() + 8) return false;
 		if (y < getRainHeight(level, x, z)) return false;
 		
-		z -= ((double) level.getLevelTime()) * CommonConfig.getCloudsSpeed() * 32;
+		z -= level.getLevelTime() * CommonConfig.getCloudsSpeed() * 32;
 		if (CommonConfig.isEternalRain() || (dimension != null && dimension.isIn(WeatherTags.ETERNAL_RAIN))) {
 			return !CommonConfig.useVanillaClouds() || getCloudDensity(x, 2, z, 1F) > 0.5F;
 		}
@@ -54,7 +54,7 @@ public class WeatherAPI {
 	}
 	
 	public static float inCloud(Level level, double x, double y, double z) {
-		z -= ((double) level.getLevelTime()) * CommonConfig.getCloudsSpeed() * 32;
+		z -= level.getLevelTime() * CommonConfig.getCloudsSpeed() * 32;
 		int x1 = net.minecraft.util.maths.MathHelper.floor(x / 2.0) << 1;
 		int y1 = net.minecraft.util.maths.MathHelper.floor(y / 2.0) << 1;
 		int z1 = net.minecraft.util.maths.MathHelper.floor(z / 2.0) << 1;
@@ -168,13 +168,15 @@ public class WeatherAPI {
 		
 		float dx = (float) (x - x1);
 		float dz = (float) (z - z1);
+		dz -= (float) ((level.getLevelTime() * CommonConfig.getCloudsSpeed() * 32) % 1.0);
 		
 		float a = getRainDensity(level, x1, y1, z1, includeSnow);
 		float b = getRainDensity(level, x2, y1, z1, includeSnow);
 		float c = getRainDensity(level, x1, y1, z2, includeSnow);
 		float d = getRainDensity(level, x2, y1, z2, includeSnow);
 		
-		return MathHelper.interpolate2D(dx, dz, a, b, c, d);
+		float value = MathHelper.interpolate2D(dx, dz, a, b, c, d);
+		return MathHelper.clamp(value, 0F, 1F);
 	}
 	
 	private static float getRainDensity(Level level, int x, int y, int z, boolean includeSnow) {
