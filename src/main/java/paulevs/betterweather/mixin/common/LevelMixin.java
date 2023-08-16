@@ -5,7 +5,6 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.BaseEntity;
-import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.level.Level;
 import net.minecraft.util.maths.Vec2i;
@@ -18,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import paulevs.betterweather.api.WeatherAPI;
+import paulevs.betterweather.util.LightningUtil;
 
 import java.util.Iterator;
 import java.util.Random;
@@ -43,19 +43,19 @@ public abstract class LevelMixin {
 		info.setReturnValue(WeatherAPI.isRaining(Level.class.cast(this), x, y, z));
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@Inject(method = "processLoadedChunks", at = @At(
 		value = "INVOKE",
 		target = "Lnet/minecraft/level/Level;getChunkFromCache(II)Lnet/minecraft/level/chunk/Chunk;",
 		shift = Shift.AFTER
 	), locals = LocalCapture.CAPTURE_FAILSOFT)
-	private void betterweather_processLoadedChunks(CallbackInfo info, Iterator var1, Vec2i pos) {
-		if (random.nextInt(1000) > 0) return;
-		int px = pos.x << 4 | random.nextInt(16);
-		int pz = pos.z << 4 | random.nextInt(16);
-		Level level = Level.class.cast(this);
-		int py = WeatherAPI.getRainHeight(level, px, pz);
-		if (!WeatherAPI.isThundering(level, px, py, pz)) return;
-		this.addEntity(new LightningEntity(level, px, py, pz));
+	private void betterweather_processLoadedChunks(CallbackInfo info, Iterator iterator, Vec2i pos) {
+		LightningUtil.processChunk(Level.class.cast(this), pos.x, pos.z);
+	}
+	
+	@Inject(method = "processLoadedChunks", at = @At("HEAD"))
+	private void betterweather_tick(CallbackInfo info) {
+		LightningUtil.tick();
 	}
 	
 	@Environment(EnvType.CLIENT)

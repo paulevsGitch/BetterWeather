@@ -15,6 +15,7 @@ public class BaseDimensionMixin {
 	@Inject(method = "getSunsetDawnColor", at = @At("RETURN"))
 	private void betterweather_getSunsetDawnColor(float f, float g, CallbackInfoReturnable<float[]> info) {
 		float[] data = info.getReturnValue();
+		if (data == null) return;
 		@SuppressWarnings("deprecation")
 		Minecraft minecraft = (Minecraft) FabricLoader.getInstance().getGameInstance();
 		LivingEntity entity = minecraft.viewEntity;

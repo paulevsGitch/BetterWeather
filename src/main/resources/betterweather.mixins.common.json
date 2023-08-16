@@ -4,6 +4,7 @@
 	"package": "paulevs.betterweather.mixin.common",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
+		"LightningEntityMixin",
 		"LevelPropertiesMixin",
 		"FireBlockMixin",
 		"LevelMixin"
