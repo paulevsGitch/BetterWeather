@@ -13,7 +13,7 @@ import paulevs.betterweather.client.rendering.BWLightningRenderer;
 public abstract class LightningRendererMixin extends EntityRenderer {
 	@Inject(method = "method_1793", at = @At("HEAD"), cancellable = true)
 	private void betterweather_render(LightningEntity entity, double dx, double dy, double dz, float delta, float h, CallbackInfo info) {
-		BWLightningRenderer.render(entity, (float) dx, (float) dy, (float) dz, dispatcher.textureManager, delta);
+		BWLightningRenderer.render(entity, (float) dx, (float) dy, (float) dz, dispatcher.textureManager);
 		info.cancel();
 	}
 }
