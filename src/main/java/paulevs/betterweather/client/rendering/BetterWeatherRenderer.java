@@ -2,6 +2,7 @@ package paulevs.betterweather.client.rendering;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.util.maths.Vec3f;
@@ -14,7 +15,8 @@ import paulevs.betterweather.api.WeatherAPI;
 public class BetterWeatherRenderer {
 	private static final CloudRenderer CLOUD_RENDERER = new CloudRenderer();
 	private static final WeatherRenderer WEATHER_RENDERER = new WeatherRenderer();
-	public static float fogDistance = 1F;
+	private static float fogDistance = 1F;
+	private static boolean isInWater;
 	public static float fogColorR;
 	public static float fogColorG;
 	public static float fogColorB;
@@ -24,7 +26,18 @@ public class BetterWeatherRenderer {
 		WEATHER_RENDERER.update(manager);
 	}
 	
-	public static void render(float delta, Minecraft minecraft) {
+	public static void renderBeforeWater(float delta, Minecraft minecraft) {
+		isInWater = minecraft.viewEntity.isInFluid(Material.WATER);
+		if (!isInWater) return;
+		render(delta, minecraft);
+	}
+	
+	public static void renderAfterWater(float delta, Minecraft minecraft) {
+		if (isInWater) return;
+		render(delta, minecraft);
+	}
+	
+	private static void render(float delta, Minecraft minecraft) {
 		CLOUD_RENDERER.render(delta, minecraft);
 		WEATHER_RENDERER.render(delta, minecraft);
 	}

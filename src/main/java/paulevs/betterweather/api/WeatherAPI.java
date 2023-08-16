@@ -18,6 +18,7 @@ public class WeatherAPI {
 	private static final ImageSampler FRONTS_SAMPLER = new ImageSampler("data/better_weather/clouds/rain_fronts.png");
 	private static final ImageSampler RAIN_DENSITY = new ImageSampler("data/better_weather/clouds/rain_density.png");
 	private static final ImageSampler VANILLA_CLOUDS = new ImageSampler("data/better_weather/clouds/vanilla_clouds.png").setSmooth(true);
+	private static final ImageSampler THUNDERSTORMS = new ImageSampler("data/better_weather/clouds/thunderstorms.png");
 	private static final float[] CLOUD_SHAPE = new float[64];
 	private static final Vec2i[] OFFSETS;
 	
@@ -37,6 +38,10 @@ public class WeatherAPI {
 		float coverage = getCoverage(rainFront);
 		int sampleHeight = CommonConfig.useVanillaClouds() ? 2 : 7;
 		return getCloudDensity(x, sampleHeight, z, rainFront) > coverage;
+	}
+	
+	public static boolean isThundering(Level level, int x, int y, int z) {
+		return isRaining(level, x, y, z) && sampleThunderstorm(x, z, 0.05) > 0.3F;
 	}
 	
 	public static float inCloud(Level level, double x, double y, double z) {
@@ -105,6 +110,10 @@ public class WeatherAPI {
 			front *= RAIN_DENSITY.sample(x * scale, z * scale);
 		}
 		return front;
+	}
+	
+	public static float sampleThunderstorm(int x, int z, double scale) {
+		return CommonConfig.isEternalThunder() ? 1 : THUNDERSTORMS.sample(x * scale, z * scale);
 	}
 	
 	public static float getCoverage(float rainFront) {

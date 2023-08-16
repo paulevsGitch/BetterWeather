@@ -7,6 +7,7 @@ public class CommonConfig {
 	private static boolean useVanillaClouds;
 	private static double cloudsSpeed;
 	private static boolean eternalRain;
+	private static boolean eternalThunder;
 	private static boolean frequentRain;
 	
 	public static void init() {
@@ -22,6 +23,10 @@ public class CommonConfig {
 			"Makes weather in the whole world rain only",
 			"Default value is false"
 		);
+		CONFIG.addEntry("eternalThunder", false,
+			"Makes weather in the whole world thunderstorm",
+			"Default value is false"
+		);
 		CONFIG.addEntry("frequentRain", false,
 			"Makes rain more frequent instead of vanilla behaviour",
 			"Default value is false"
@@ -31,6 +36,7 @@ public class CommonConfig {
 		useVanillaClouds = CONFIG.getBool("useVanillaClouds");
 		cloudsSpeed = CONFIG.getFloat("cloudsSpeed");
 		eternalRain = CONFIG.getBool("eternalRain");
+		eternalThunder = CONFIG.getBool("eternalThunder");
 		frequentRain = CONFIG.getBool("frequentRain");
 	}
 	
@@ -44,6 +50,10 @@ public class CommonConfig {
 	
 	public static boolean isEternalRain() {
 		return eternalRain;
+	}
+	
+	public static boolean isEternalThunder() {
+		return eternalThunder;
 	}
 	
 	public static boolean isFrequentRain() {

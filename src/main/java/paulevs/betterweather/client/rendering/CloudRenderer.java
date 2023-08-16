@@ -21,6 +21,8 @@ import java.util.stream.IntStream;
 
 @Environment(EnvType.CLIENT)
 public class CloudRenderer {
+	public static final short EMPTY_CLOUD = (short) 0xF000;
+	
 	private static final PerlinNoise NOISE = new PerlinNoise(new Random(0));
 	private static final short[] CLOUD_DATA = new short[8192];
 	
@@ -132,15 +134,17 @@ public class CloudRenderer {
 			float coverage = WeatherAPI.getCoverage(rainFront);
 			
 			if (density < coverage) {
-				CLOUD_DATA[index] = -1;
+				CLOUD_DATA[index] = EMPTY_CLOUD;
 			}
 			else {
-				CLOUD_DATA[index] = (byte) ((byte) (rainFront * 15) << 4);
+				CLOUD_DATA[index] = (short) ((byte) (rainFront * 15) << 4);
+				byte thunder = (byte) (WeatherAPI.sampleThunderstorm(x, z, 0.1) * rainFront * 15);
+				CLOUD_DATA[index] |= thunder << 8;
 			}
 		});
 		
 		IntStream.range(0, 8192).parallel().forEach(index -> {
-			if (CLOUD_DATA[index] == -1) return;
+			if (CLOUD_DATA[index] == EMPTY_CLOUD) return;
 			
 			int x = index & 15;
 			int y = (index >> 4) & 31;
@@ -153,7 +157,7 @@ public class CloudRenderer {
 			for (byte i = 1; i < 15; i++) {
 				if (y + i > 31) break;
 				int index2 = index + (i << 4);
-				if (CLOUD_DATA[index2] != -1) light--;
+				if (CLOUD_DATA[index2] != EMPTY_CLOUD) light--;
 			}
 			
 			if (light > 0) {

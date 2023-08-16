@@ -59,7 +59,7 @@ public class CloudChunk {
 		tessellator.start();
 		
 		for (short i = 0; i < 8192; i++) {
-			if (data[i] == -1) continue;
+			if (data[i] == CloudRenderer.EMPTY_CLOUD) continue;
 			
 			byte x = (byte) (i & 15);
 			byte y = (byte) ((i >> 4) & 31);
@@ -67,24 +67,26 @@ public class CloudChunk {
 			
 			boolean canDraw = x == 0 || x == 15 || y == 0 || y == 31 || z == 0 || z == 15;
 			if (!canDraw) {
-				canDraw = data[i + 1] == -1 || data[i - 1] == -1 ||
-					data[i + 16] == -1 || data[i - 16] == -1 ||
-					data[i + 512] == -1 || data[i - 512] == -1;
+				canDraw = data[i + 1] == CloudRenderer.EMPTY_CLOUD || data[i - 1] == CloudRenderer.EMPTY_CLOUD ||
+					data[i + 16] == CloudRenderer.EMPTY_CLOUD || data[i - 16] == CloudRenderer.EMPTY_CLOUD ||
+					data[i + 512] == CloudRenderer.EMPTY_CLOUD || data[i - 512] == CloudRenderer.EMPTY_CLOUD;
 			}
 			
 			if (!canDraw) continue;
 			
 			RANDOM.setSeed(MathHelper.hashCode(x, y, z));
-			float deltaBrightness = ((data[i] & 15) + RANDOM.nextFloat()) / 16F;
-			float deltaWetness = (((data[i] >> 4) & 15) + RANDOM.nextFloat()) / 16F;
+			float deltaBrightness = ((data[i] & 15) + RANDOM.nextFloat()) / 15F;
+			float deltaWetness = (((data[i] >> 4) & 15) + RANDOM.nextFloat()) / 15F;
+			float deltaThunder = ((data[i] >> 8) & 15) / 15F;
 			deltaBrightness *= (1 - deltaWetness) * 0.5F + 0.5F;
+			deltaThunder = MathHelper.lerp(deltaThunder, 1F, 0.5F);
 			
 			float r = MathHelper.lerp(deltaWetness, RAIN_COLOR[0], DARK_COLOR[0]);
 			float g = MathHelper.lerp(deltaWetness, RAIN_COLOR[1], DARK_COLOR[1]);
 			float b = MathHelper.lerp(deltaWetness, RAIN_COLOR[2], DARK_COLOR[2]);
-			r = MathHelper.lerp(deltaBrightness, r, 1F);
-			g = MathHelper.lerp(deltaBrightness, g, 1F);
-			b = MathHelper.lerp(deltaBrightness, b, 1F);
+			r = MathHelper.lerp(deltaBrightness, r, 1F) * deltaThunder;
+			g = MathHelper.lerp(deltaBrightness, g, 1F) * deltaThunder;
+			b = MathHelper.lerp(deltaBrightness, b, 1F) * deltaThunder;
 			
 			tessellator.color(r, g, b);
 			if (ClientConfig.renderFluffy()) {
@@ -151,39 +153,39 @@ public class CloudChunk {
 	}
 	
 	private void makeNormalCloudBlock(Tessellator tessellator, int x, int y, int z, short[] data, int index) {
-		if (x == 0 || data[index - 1] == -1) {
+		if (x == 0 || data[index - 1] == CloudRenderer.EMPTY_CLOUD) {
 			tessellator.vertex(x, y, z, 0.5F, 0.5F);
 			tessellator.vertex(x, y + 1, z, 0.5F, 0.5F);
 			tessellator.vertex(x, y + 1, z + 1, 0.5F, 0.5F);
 			tessellator.vertex(x, y, z + 1, 0.5F, 0.5F);
 		}
-		if (x == 15 || data[index + 1] == -1) {
+		if (x == 15 || data[index + 1] == CloudRenderer.EMPTY_CLOUD) {
 			tessellator.vertex(x + 1, y, z, 0.5F, 0.5F);
 			tessellator.vertex(x + 1, y + 1, z, 0.5F, 0.5F);
 			tessellator.vertex(x + 1, y + 1, z + 1, 0.5F, 0.5F);
 			tessellator.vertex(x + 1, y, z + 1, 0.5F, 0.5F);
 		}
 		
-		if (y == 0 || data[index - 16] == -1) {
+		if (y == 0 || data[index - 16] == CloudRenderer.EMPTY_CLOUD) {
 			tessellator.vertex(x, y, z, 0.5F, 0.5F);
 			tessellator.vertex(x + 1, y, z, 0.5F, 0.5F);
 			tessellator.vertex(x + 1, y, z + 1, 0.5F, 0.5F);
 			tessellator.vertex(x, y, z + 1, 0.5F, 0.5F);
 		}
-		if (y == 31 || data[index + 16] == -1) {
+		if (y == 31 || data[index + 16] == CloudRenderer.EMPTY_CLOUD) {
 			tessellator.vertex(x, y + 1, z, 0.5F, 0.5F);
 			tessellator.vertex(x + 1, y + 1, z, 0.5F, 0.5F);
 			tessellator.vertex(x + 1, y + 1, z + 1, 0.5F, 0.5F);
 			tessellator.vertex(x, y + 1, z + 1, 0.5F, 0.5F);
 		}
 		
-		if (z == 0 || data[index - 512] == -1) {
+		if (z == 0 || data[index - 512] == CloudRenderer.EMPTY_CLOUD) {
 			tessellator.vertex(x, y, z, 0.5F, 0.5F);
 			tessellator.vertex(x, y + 1, z, 0.5F, 0.5F);
 			tessellator.vertex(x + 1, y + 1, z, 0.5F, 0.5F);
 			tessellator.vertex(x + 1, y, z, 0.5F, 0.5F);
 		}
-		if (z == 15 || data[index + 512] == -1) {
+		if (z == 15 || data[index + 512] == CloudRenderer.EMPTY_CLOUD) {
 			tessellator.vertex(x, y, z + 1, 0.5F, 0.5F);
 			tessellator.vertex(x, y + 1, z + 1, 0.5F, 0.5F);
 			tessellator.vertex(x + 1, y + 1, z + 1, 0.5F, 0.5F);

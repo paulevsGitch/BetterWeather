@@ -26,8 +26,8 @@ public class LevelRendererMixin {
 	}
 	
 	@Inject(method = "renderEnvironment", at = @At("HEAD"), cancellable = true)
-	private void betterweather_renderClouds(float delta, CallbackInfo info) {
-		BetterWeatherRenderer.render(delta, minecraft);
+	private void betterweather_renderAfterWater(float delta, CallbackInfo info) {
+		BetterWeatherRenderer.renderAfterWater(delta, minecraft);
 		info.cancel();
 	}
 	

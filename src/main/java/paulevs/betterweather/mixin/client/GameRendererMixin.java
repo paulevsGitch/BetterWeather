@@ -31,6 +31,9 @@ public class GameRendererMixin {
 	
 	@Inject(method = "renderFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/level/Level;getRainGradient(F)F"))
 	private void betterweather_renderFog(float delta, CallbackInfo info) {
+		BetterWeatherRenderer.fogColorR = fogColorR;
+		BetterWeatherRenderer.fogColorG = fogColorG;
+		BetterWeatherRenderer.fogColorB = fogColorB;
 		BetterWeatherRenderer.updateFogColor(minecraft, delta);
 		fogColorR = BetterWeatherRenderer.fogColorR;
 		fogColorG = BetterWeatherRenderer.fogColorG;
@@ -45,5 +48,14 @@ public class GameRendererMixin {
 	))
 	private void betterweather_changeFogDepth(int f, float par2, CallbackInfo ci) {
 		BetterWeatherRenderer.updateFogDepth(fogDistance);
+	}
+	
+	@Inject(method = "delta", at = @At(
+		value = "INVOKE",
+		target = "Lnet/minecraft/client/particle/ParticleManager;renderAll(Lnet/minecraft/entity/BaseEntity;F)V",
+		shift = Shift.AFTER
+	))
+	private void betterweather_renderBeforeWater(float delta, long time, CallbackInfo info) {
+		BetterWeatherRenderer.renderBeforeWater(delta, minecraft);
 	}
 }
