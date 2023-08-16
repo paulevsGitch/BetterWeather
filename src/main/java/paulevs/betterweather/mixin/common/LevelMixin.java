@@ -1,9 +1,13 @@
 package paulevs.betterweather.mixin.common;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.BaseEntity;
 import net.minecraft.entity.LightningEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.level.Level;
-import net.minecraft.level.chunk.Chunk;
 import net.minecraft.util.maths.Vec2i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,11 +24,7 @@ import java.util.Random;
 
 @Mixin(Level.class)
 public abstract class LevelMixin {
-	@Shadow public abstract Chunk getChunkFromCache(int i, int j);
-	
 	@Shadow public abstract boolean addEntity(BaseEntity arg);
-	
-	@Shadow public abstract int getHeight(int i, int j);
 	
 	@Shadow public Random random;
 	
@@ -56,5 +56,15 @@ public abstract class LevelMixin {
 		int py = WeatherAPI.getRainHeight(level, px, pz);
 		if (!WeatherAPI.isThundering(level, px, py, pz)) return;
 		this.addEntity(new LightningEntity(level, px, py, pz));
+	}
+	
+	@Environment(EnvType.CLIENT)
+	@Inject(method = "getRainGradient", at = @At("HEAD"), cancellable = true)
+	private void betterweather_getRainGradient(float delta, CallbackInfoReturnable<Float> info) {
+		@SuppressWarnings("deprecation")
+		Minecraft minecraft = (Minecraft) FabricLoader.getInstance().getGameInstance();
+		LivingEntity entity = minecraft.viewEntity;
+		if (entity == null || minecraft.level == null) return;
+		info.setReturnValue(WeatherAPI.getRainDensity(minecraft.level, entity.x, entity.y, entity.z, true));
 	}
 }
