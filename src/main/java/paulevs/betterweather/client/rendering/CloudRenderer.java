@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.level.Level;
 import net.minecraft.util.maths.Vec2i;
 import net.minecraft.util.noise.PerlinNoise;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
@@ -100,7 +101,7 @@ public class CloudRenderer {
 			chunk.setRenderPosition(cx, cz);
 			chunk.checkIfNeedUpdate(cx, movedZ);
 			if (canUpdate && chunk.needUpdate()) {
-				updateData(cx, movedZ);
+				updateData(minecraft.level, cx, movedZ);
 				chunk.update(cx, movedZ, CLOUD_DATA);
 				canUpdate = false;
 			}
@@ -117,7 +118,7 @@ public class CloudRenderer {
 		Arrays.stream(chunks).forEach(CloudChunk::forceUpdate);
 	}
 	
-	private void updateData(int cx, int cz) {
+	private void updateData(Level level, int cx, int cz) {
 		final int posX = cx << 4;
 		final int posZ = cz << 4;
 		
@@ -129,7 +130,7 @@ public class CloudRenderer {
 			x |= posX;
 			z |= posZ;
 			
-			float rainFront = WeatherAPI.sampleFront(x, z, 0.2);
+			float rainFront = WeatherAPI.sampleFront(level, x, z, 0.2);
 			float density = WeatherAPI.getCloudDensity(x << 1, y << 1, z << 1, rainFront);
 			float coverage = WeatherAPI.getCoverage(rainFront);
 			
@@ -138,7 +139,7 @@ public class CloudRenderer {
 			}
 			else {
 				CLOUD_DATA[index] = (short) ((byte) (rainFront * 15) << 4);
-				byte thunder = (byte) (WeatherAPI.sampleThunderstorm(x, z, 0.1) * rainFront * 15);
+				byte thunder = (byte) (WeatherAPI.sampleThunderstorm(level, x, z, 0.1) * rainFront * 15);
 				CLOUD_DATA[index] |= thunder << 8;
 			}
 		});

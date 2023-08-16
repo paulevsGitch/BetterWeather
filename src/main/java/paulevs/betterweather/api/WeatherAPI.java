@@ -4,12 +4,17 @@ import net.minecraft.level.Level;
 import net.minecraft.level.chunk.Chunk;
 import net.minecraft.util.maths.Vec2i;
 import net.modificationstation.stationapi.api.block.BlockState;
+import net.modificationstation.stationapi.api.registry.DimensionContainer;
+import net.modificationstation.stationapi.api.registry.DimensionRegistry;
+import net.modificationstation.stationapi.api.registry.RegistryEntry;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
 import paulevs.betterweather.config.CommonConfig;
 import paulevs.betterweather.util.ImageSampler;
+import paulevs.betterweather.util.WeatherTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class WeatherAPI {
 	private static final ImageSampler MAIN_SHAPE_SAMPLER = new ImageSampler("data/better_weather/clouds/main_shape.png");
@@ -24,15 +29,19 @@ public class WeatherAPI {
 	
 	public static boolean isRaining(Level level, int x, int y, int z) {
 		if (level.dimension.evaporatesWater) return false;
+		
+		RegistryEntry<DimensionContainer<?>> dimension = getDimension(level);
+		if (dimension != null && dimension.isIn(WeatherTags.NO_RAIN)) return false;
+		
 		if (y > level.dimension.getCloudHeight() + 8) return false;
 		if (y < getRainHeight(level, x, z)) return false;
 		
 		z -= ((double) level.getLevelTime()) * CommonConfig.getCloudsSpeed() * 32;
-		if (CommonConfig.isEternalRain()) {
+		if (CommonConfig.isEternalRain() || (dimension != null && dimension.isIn(WeatherTags.ETERNAL_RAIN))) {
 			return !CommonConfig.useVanillaClouds() || getCloudDensity(x, 2, z, 1F) > 0.5F;
 		}
 		
-		float rainFront = sampleFront(x, z, 0.1);
+		float rainFront = sampleFront(level, x, z, 0.1);
 		if (rainFront < 0.2F) return false;
 		
 		float coverage = getCoverage(rainFront);
@@ -41,7 +50,7 @@ public class WeatherAPI {
 	}
 	
 	public static boolean isThundering(Level level, int x, int y, int z) {
-		return isRaining(level, x, y, z) && sampleThunderstorm(x, z, 0.05) > 0.3F;
+		return isRaining(level, x, y, z) && sampleThunderstorm(level, x, z, 0.05) > 0.3F;
 	}
 	
 	public static float inCloud(Level level, double x, double y, double z) {
@@ -74,7 +83,7 @@ public class WeatherAPI {
 		if (level.dimension.evaporatesWater) return false;
 		int start = (int) level.dimension.getCloudHeight();
 		if (y < start || y > start + 64) return false;
-		float rainFront = sampleFront(x, z, 0.1);
+		float rainFront = sampleFront(level, x, z, 0.1);
 		float coverage = getCoverage(rainFront);
 		return getCloudDensity(x, y - start, z, rainFront) > coverage;
 	}
@@ -102,8 +111,15 @@ public class WeatherAPI {
 		return MathHelper.lerp(rainFront, density1, density2);
 	}
 	
-	public static float sampleFront(int x, int z, double scale) {
+	public static float sampleFront(Level level, int x, int z, double scale) {
 		if (CommonConfig.isEternalRain()) return 1F;
+		
+		RegistryEntry<DimensionContainer<?>> dimension = getDimension(level);
+		if (dimension != null) {
+			if (dimension.isIn(WeatherTags.NO_RAIN)) return 0F;
+			if (dimension.isIn(WeatherTags.ETERNAL_RAIN)) return 1F;
+		}
+		
 		float front = FRONTS_SAMPLER.sample(x * scale, z * scale);
 		if (!CommonConfig.isFrequentRain()) {
 			scale *= 0.7;
@@ -112,8 +128,16 @@ public class WeatherAPI {
 		return front;
 	}
 	
-	public static float sampleThunderstorm(int x, int z, double scale) {
-		return CommonConfig.isEternalThunder() ? 1 : THUNDERSTORMS.sample(x * scale, z * scale);
+	public static float sampleThunderstorm(Level level, int x, int z, double scale) {
+		if (CommonConfig.isEternalThunder()) return 1F;
+		
+		RegistryEntry<DimensionContainer<?>> dimension = getDimension(level);
+		if (dimension != null) {
+			if (dimension.isIn(WeatherTags.NO_THUNDER)) return 0F;
+			if (dimension.isIn(WeatherTags.ETERNAL_THUNDER)) return 1F;
+		}
+		
+		return THUNDERSTORMS.sample(x * scale, z * scale);
 	}
 	
 	public static float getCoverage(float rainFront) {
@@ -196,5 +220,10 @@ public class WeatherAPI {
 			return Integer.compare(d1, d2);
 		});
 		OFFSETS = offsets.toArray(Vec2i[]::new);
+	}
+	
+	private static RegistryEntry<DimensionContainer<?>> getDimension(Level level) {
+		Optional<DimensionContainer<?>> optional = DimensionRegistry.INSTANCE.getByLegacyId(level.dimension.id);
+		return optional.map(DimensionRegistry.INSTANCE::getEntry).orElse(null);
 	}
 }
