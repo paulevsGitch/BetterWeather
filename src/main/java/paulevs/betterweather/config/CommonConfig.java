@@ -9,6 +9,7 @@ public class CommonConfig {
 	private static boolean eternalRain;
 	private static boolean eternalThunder;
 	private static boolean frequentRain;
+	private static int rodCheckSide;
 	
 	public static void init() {
 		CONFIG.addEntry("useVanillaClouds", false,
@@ -31,6 +32,12 @@ public class CommonConfig {
 			"Makes rain more frequent instead of vanilla behaviour",
 			"Default value is false"
 		);
+		CONFIG.addEntry("rodCheckSide", 32,
+			"Distance in blocks (from the rod block) that will be protected from lightnings",
+			"The area is square with center on rod block and radius equal to this number",
+			"Max value is " + Short.MAX_VALUE + " and min is 0",
+			"Default value is 32"
+		);
 		CONFIG.save();
 		
 		useVanillaClouds = CONFIG.getBool("useVanillaClouds");
@@ -38,6 +45,10 @@ public class CommonConfig {
 		eternalRain = CONFIG.getBool("eternalRain");
 		eternalThunder = CONFIG.getBool("eternalThunder");
 		frequentRain = CONFIG.getBool("frequentRain");
+		rodCheckSide = CONFIG.getInt("rodCheckSide");
+		
+		if (rodCheckSide > Short.MAX_VALUE) rodCheckSide = Short.MAX_VALUE;
+		if (rodCheckSide < 0) rodCheckSide = 0;
 	}
 	
 	public static boolean useVanillaClouds() {
@@ -58,5 +69,9 @@ public class CommonConfig {
 	
 	public static boolean isFrequentRain() {
 		return frequentRain;
+	}
+	
+	public static short getRodCheckSide() {
+		return (short) rodCheckSide;
 	}
 }

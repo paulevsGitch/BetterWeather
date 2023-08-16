@@ -3,6 +3,7 @@ package paulevs.betterweather.util;
 import net.minecraft.entity.LightningEntity;
 import net.minecraft.level.Level;
 import paulevs.betterweather.api.WeatherAPI;
+import paulevs.betterweather.config.CommonConfig;
 
 public class LightningUtil {
 	private static int lightningTicks;
@@ -17,9 +18,10 @@ public class LightningUtil {
 		int px, py, pz;
 		int lx = 0, ly = Integer.MIN_VALUE, lz = 0;
 		
-		for (byte dx = -32; dx <= 32; dx++) {
+		short radius = CommonConfig.getRodCheckSide();
+		for (short dx = (short) -radius; dx <= radius; dx++) {
 			px = (cx << 4) + dx + 8;
-			for (byte dz = -32; dz <= 32; dz++) {
+			for (short dz = (short) -radius; dz <= radius; dz++) {
 				pz = (cz << 4) + dz + 8;
 				py = WeatherAPI.getRainHeight(level, px, pz);
 				if (!WeatherAPI.isThundering(level, px, py, pz)) continue;
