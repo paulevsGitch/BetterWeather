@@ -1,7 +1,10 @@
 package paulevs.betterweather.api;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.level.Level;
 import net.minecraft.level.chunk.Chunk;
+import net.minecraft.level.dimension.Dimension;
 import net.minecraft.util.maths.Vec2I;
 import net.modificationstation.stationapi.api.block.BlockState;
 import net.modificationstation.stationapi.api.registry.DimensionContainer;
@@ -33,7 +36,7 @@ public class WeatherAPI {
 		RegistryEntry<DimensionContainer<?>> dimension = getDimension(level);
 		if (dimension != null && dimension.isIn(WeatherTags.NO_RAIN)) return false;
 		
-		if (y > level.dimension.getCloudHeight() + 8) return false;
+		if (y > getCloudHeight(level.dimension) + 8) return false;
 		if (y < getRainHeight(level, x, z)) return false;
 		
 		z = (int) (z - level.getLevelTime() * CommonConfig.getCloudsSpeed() * 32);
@@ -81,7 +84,7 @@ public class WeatherAPI {
 	
 	private static boolean isInCloud(Level level, int x, int y, int z) {
 		if (level.dimension.evaporatesWater) return false;
-		int start = (int) level.dimension.getCloudHeight();
+		int start = (int) getCloudHeight(level.dimension);
 		if (y < start || y > start + 64) return false;
 		float rainFront = sampleFront(level, x, z, 0.1);
 		float coverage = getCoverage(rainFront);
@@ -145,7 +148,7 @@ public class WeatherAPI {
 	}
 	
 	public static int getRainHeight(Level level, int x, int z) {
-		int max = (int) (level.dimension.getCloudHeight() + 4);
+		int max = (int) (getCloudHeight(level.dimension) + 4);
 		int height = level.getHeight(x, z);
 		if (height >= max) return max;
 		Chunk chunk = level.getChunkFromCache(x >> 4, z >> 4);
@@ -227,5 +230,12 @@ public class WeatherAPI {
 	private static RegistryEntry<DimensionContainer<?>> getDimension(Level level) {
 		Optional<DimensionContainer<?>> optional = DimensionRegistry.INSTANCE.getByLegacyId(level.dimension.id);
 		return optional.map(DimensionRegistry.INSTANCE::getEntry).orElse(null);
+	}
+	
+	private static float getCloudHeight(Dimension dimension) {
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			return dimension.getCloudHeight();
+		}
+		return 108F;
 	}
 }
