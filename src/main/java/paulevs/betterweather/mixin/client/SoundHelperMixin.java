@@ -23,10 +23,10 @@ public class SoundHelperMixin {
 		WeatherSounds.init(soundSystem);
 	}
 	
-	@Inject(method = "handleBackgroundMusic", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "handleBackgroundMusic", at = @At("HEAD"))
 	private void betterweather_handleBackgroundMusic(CallbackInfo info) {
 		if (!initialized) return;
-		@SuppressWarnings("deprecated")
+		@SuppressWarnings({"deprecated", "deprecation"})
 		Minecraft minecraft = (Minecraft) FabricLoader.getInstance().getGameInstance();
 		WeatherSounds.updateSound(minecraft.level, minecraft.viewEntity, soundSystem, gameOptions.sound);
 	}

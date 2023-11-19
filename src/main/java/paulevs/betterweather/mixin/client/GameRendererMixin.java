@@ -15,9 +15,6 @@ public class GameRendererMixin {
 	@Shadow private int ambientSoundTick;
 	@Shadow private Minecraft minecraft;
 	@Shadow private float fogDistance;
-	@Shadow float fogColorR;
-	@Shadow float fogColorG;
-	@Shadow float fogColorB;
 	
 	@Inject(method = "renderWeather", at = @At("HEAD"), cancellable = true)
 	private void betterweather_renderWeather(float delta, CallbackInfo info) {
@@ -27,17 +24,6 @@ public class GameRendererMixin {
 	@Inject(method = "weatherEffects", at = @At("HEAD"))
 	private void betterweather_resetSounds(CallbackInfo info) {
 		this.ambientSoundTick = -10;
-	}
-	
-	@Inject(method = "renderFog", at = @At(value = "INVOKE", target = "Lnet/minecraft/level/Level;getRainGradient(F)F"))
-	private void betterweather_renderFog(float delta, CallbackInfo info) {
-		BetterWeatherRenderer.fogColorR = fogColorR;
-		BetterWeatherRenderer.fogColorG = fogColorG;
-		BetterWeatherRenderer.fogColorB = fogColorB;
-		BetterWeatherRenderer.updateFogColor(minecraft, delta);
-		fogColorR = BetterWeatherRenderer.fogColorR;
-		fogColorG = BetterWeatherRenderer.fogColorG;
-		fogColorB = BetterWeatherRenderer.fogColorB;
 	}
 	
 	@Inject(method = "setupFog", at = @At(
@@ -53,7 +39,7 @@ public class GameRendererMixin {
 	
 	@Inject(method = "delta", at = @At(
 		value = "INVOKE",
-		target = "Lnet/minecraft/client/particle/ParticleManager;renderAll(Lnet/minecraft/entity/BaseEntity;F)V",
+		target = "Lnet/minecraft/client/particle/ParticleManager;renderAll(Lnet/minecraft/entity/Entity;F)V",
 		shift = Shift.AFTER
 	))
 	private void betterweather_renderBeforeWater(float delta, long time, CallbackInfo info) {

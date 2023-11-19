@@ -4,10 +4,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.BaseEntity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.level.Level;
-import net.minecraft.util.maths.Vec2i;
+import net.minecraft.util.maths.Vec2I;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,7 +29,7 @@ public abstract class LevelMixin {
 	
 	@Shadow public Random random;
 	
-	@Shadow public abstract boolean addEntity(BaseEntity arg);
+	@Shadow public abstract boolean addEntity(Entity arg);
 	
 	@Inject(method = "isRaining", at = @At("HEAD"), cancellable = true)
 	private void betterweather_isRaining(CallbackInfoReturnable<Boolean> info)  {
@@ -52,7 +52,7 @@ public abstract class LevelMixin {
 		target = "Lnet/minecraft/level/Level;getChunkFromCache(II)Lnet/minecraft/level/chunk/Chunk;",
 		shift = Shift.AFTER
 	), locals = LocalCapture.CAPTURE_FAILSOFT)
-	private void betterweather_processLoadedChunks(CallbackInfo info, Iterator iterator, Vec2i pos) {
+	private void betterweather_processLoadedChunks(CallbackInfo info, Iterator iterator, Vec2I pos) {
 		LightningUtil.processChunk(Level.class.cast(this), pos.x, pos.z);
 	}
 	
@@ -77,7 +77,7 @@ public abstract class LevelMixin {
 		info.setReturnValue(WeatherAPI.getRainDensity(minecraft.level, entity.x, entity.y, entity.z, true));
 	}
 	
-	@Inject(method = "getEnvironmentLight", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "getEnvironmentLight", at = @At("HEAD"))
 	private void betterweather_getEnvironmentLight(float delta, CallbackInfoReturnable<Integer> info) {
 		betterweather_flag = true;
 	}

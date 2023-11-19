@@ -4,7 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.entity.LightningEntity;
+import net.minecraft.entity.technical.LightningEntity;
 import net.minecraft.util.maths.MathHelper;
 import org.lwjgl.opengl.GL11;
 import paulevs.betterweather.config.CommonConfig;

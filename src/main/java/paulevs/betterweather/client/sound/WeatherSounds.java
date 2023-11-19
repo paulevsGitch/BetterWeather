@@ -3,7 +3,7 @@ package paulevs.betterweather.client.sound;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.sound.SoundEntry;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.level.Level;
 import net.minecraft.util.maths.MathHelper;
 import paulevs.betterweather.api.WeatherAPI;

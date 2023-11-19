@@ -1,7 +1,7 @@
 package paulevs.betterweather.mixin.common;
 
-import net.minecraft.entity.AbstractLightning;
-import net.minecraft.entity.LightningEntity;
+import net.minecraft.entity.technical.AbstractLightning;
+import net.minecraft.entity.technical.LightningEntity;
 import net.minecraft.level.Level;
 import net.minecraft.util.maths.MathHelper;
 import net.modificationstation.stationapi.api.block.States;
@@ -50,7 +50,10 @@ public abstract class LightningEntityMixin extends AbstractLightning {
 		}
 	}
 	
-	@Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LightningEntity;remove()V"))
+	@Inject(method = "tick", at = @At(
+		value = "INVOKE",
+		target = "Lnet/minecraft/entity/technical/LightningEntity;remove()V"
+	))
 	private void betterweather_onRemove(CallbackInfo info) {
 		int px = MathHelper.floor(this.x);
 		int py = MathHelper.floor(this.y);
@@ -66,6 +69,10 @@ public abstract class LightningEntityMixin extends AbstractLightning {
 		return 200F;
 	}
 	
-	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/level/Level;playSound(DDDLjava/lang/String;FF)V", ordinal = 1))
+	@Redirect(method = "tick", at = @At(
+		value = "INVOKE",
+		target = "Lnet/minecraft/level/Level;playSound(DDDLjava/lang/String;FF)V",
+		ordinal = 1
+	))
 	private void betterweather_disableExplosionSound(Level level, double e, double f, double string, String g, float h, float v) {}
 }

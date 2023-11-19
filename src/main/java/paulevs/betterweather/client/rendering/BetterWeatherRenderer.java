@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.util.maths.Vec3f;
+import net.minecraft.util.maths.Vec3D;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
@@ -27,12 +27,14 @@ public class BetterWeatherRenderer {
 	}
 	
 	public static void renderBeforeWater(float delta, Minecraft minecraft) {
+		if (minecraft.level.dimension.evaporatesWater) return;
 		isInWater = minecraft.viewEntity.isInFluid(Material.WATER);
 		if (!isInWater) return;
 		render(delta, minecraft);
 	}
 	
 	public static void renderAfterWater(float delta, Minecraft minecraft) {
+		if (minecraft.level.dimension.evaporatesWater) return;
 		if (isInWater) return;
 		render(delta, minecraft);
 	}
@@ -81,7 +83,7 @@ public class BetterWeatherRenderer {
 		);
 		
 		if (inCloud > 0) {
-			Vec3f fogColor = minecraft.level.getSunPosition(delta);
+			Vec3D fogColor = minecraft.level.getSunPosition(delta);
 			fogDistance = MathHelper.lerp(inCloud, fogDistance, 0.02F);
 			fogColorR = MathHelper.lerp(inCloud, fogColorR, (float) fogColor.x);
 			fogColorG = MathHelper.lerp(inCloud, fogColorG, (float) fogColor.y);

@@ -2,7 +2,7 @@ package paulevs.betterweather.api;
 
 import net.minecraft.level.Level;
 import net.minecraft.level.chunk.Chunk;
-import net.minecraft.util.maths.Vec2i;
+import net.minecraft.util.maths.Vec2I;
 import net.modificationstation.stationapi.api.block.BlockState;
 import net.modificationstation.stationapi.api.registry.DimensionContainer;
 import net.modificationstation.stationapi.api.registry.DimensionRegistry;
@@ -25,7 +25,7 @@ public class WeatherAPI {
 	private static final ImageSampler VANILLA_CLOUDS = new ImageSampler("data/better_weather/clouds/vanilla_clouds.png").setSmooth(true);
 	private static final ImageSampler THUNDERSTORMS = new ImageSampler("data/better_weather/clouds/thunderstorms.png");
 	private static final float[] CLOUD_SHAPE = new float[64];
-	private static final Vec2i[] OFFSETS;
+	private static final Vec2I[] OFFSETS;
 	
 	public static boolean isRaining(Level level, int x, int y, int z) {
 		if (level.dimension.evaporatesWater) return false;
@@ -36,7 +36,7 @@ public class WeatherAPI {
 		if (y > level.dimension.getCloudHeight() + 8) return false;
 		if (y < getRainHeight(level, x, z)) return false;
 		
-		z -= level.getLevelTime() * CommonConfig.getCloudsSpeed() * 32;
+		z = (int) (z - level.getLevelTime() * CommonConfig.getCloudsSpeed() * 32);
 		if (CommonConfig.isEternalRain() || (dimension != null && dimension.isIn(WeatherTags.ETERNAL_RAIN))) {
 			return !CommonConfig.useVanillaClouds() || getCloudDensity(x, 2, z, 1F) > 0.5F;
 		}
@@ -183,7 +183,7 @@ public class WeatherAPI {
 		if (level.dimension.evaporatesWater) return 0;
 		
 		int count = 0;
-		for (Vec2i offset : OFFSETS) {
+		for (Vec2I offset : OFFSETS) {
 			boolean snowCheck = includeSnow || !level.getBiomeSource().getBiome(x, z).canSnow();
 			if (snowCheck && isRaining(level, x + offset.x, y, z + offset.z)) {
 				count++;
@@ -208,11 +208,11 @@ public class WeatherAPI {
 		int capacity = radius * 2 + 1;
 		capacity *= capacity;
 		
-		List<Vec2i> offsets = new ArrayList<>(capacity);
+		List<Vec2I> offsets = new ArrayList<>(capacity);
 		for (int x = -radius; x <= radius; x++) {
 			for (int z = -radius; z <= radius; z++) {
 				if (x * x + z * z <= radius * radius) {
-					offsets.add(new Vec2i(x, z));
+					offsets.add(new Vec2I(x, z));
 				}
 			}
 		}
@@ -221,7 +221,7 @@ public class WeatherAPI {
 			int d2 = v2.x * v2.x + v2.z * v2.z;
 			return Integer.compare(d1, d2);
 		});
-		OFFSETS = offsets.toArray(Vec2i[]::new);
+		OFFSETS = offsets.toArray(Vec2I[]::new);
 	}
 	
 	private static RegistryEntry<DimensionContainer<?>> getDimension(Level level) {

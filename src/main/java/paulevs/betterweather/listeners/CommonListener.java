@@ -1,15 +1,15 @@
 package paulevs.betterweather.listeners;
 
 import net.mine_diver.unsafeevents.listener.EventListener;
-import net.minecraft.block.BaseBlock;
+import net.minecraft.block.Block;
 import net.modificationstation.stationapi.api.event.mod.InitEvent;
 import net.modificationstation.stationapi.api.event.registry.BlockRegistryEvent;
-import net.modificationstation.stationapi.api.registry.ModID;
+import net.modificationstation.stationapi.api.util.Namespace;
 import paulevs.betterweather.config.CommonConfig;
 import paulevs.betterweather.util.LightningLightBlock;
 
 public class CommonListener {
-	public static BaseBlock lightningLight;
+	public static Block lightningLight;
 	
 	@EventListener
 	public void onInit(InitEvent event) {
@@ -18,7 +18,7 @@ public class CommonListener {
 	
 	@EventListener
 	public void onBlockRegister(BlockRegistryEvent event) {
-		ModID modID = ModID.of("better_weather");
+		Namespace modID = Namespace.of("better_weather");
 		lightningLight = new LightningLightBlock(modID.id("lightning_light"));
 	}
 }

@@ -1,28 +1,26 @@
 package paulevs.betterweather.util;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.LightningEntity;
+import net.minecraft.entity.technical.LightningEntity;
 import net.minecraft.level.BlockView;
 import net.minecraft.level.Level;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.maths.Box;
-import net.minecraft.util.maths.Vec3f;
+import net.minecraft.util.maths.Vec3D;
 import net.modificationstation.stationapi.api.block.BlockState;
 import net.modificationstation.stationapi.api.block.States;
 import net.modificationstation.stationapi.api.item.ItemPlacementContext;
-import net.modificationstation.stationapi.api.registry.Identifier;
-import net.modificationstation.stationapi.api.template.block.TemplateBlockBase;
+import net.modificationstation.stationapi.api.template.block.TemplateBlock;
+import net.modificationstation.stationapi.api.util.Identifier;
 
 import java.util.Random;
 
-import static net.modificationstation.stationapi.api.registry.Identifier.of;
-
-public class LightningLightBlock extends TemplateBlockBase {
+public class LightningLightBlock extends TemplateBlock {
 	public LightningLightBlock(Identifier id) {
 		super(id, Material.AIR);
 		setHardness(0);
 		setBlastResistance(0);
-		setTranslationKey(of("air").toString());
+		setTranslationKey("minecraft:air");
 		disableNotifyOnMetaDataChange();
 		disableStat();
 		setLightOpacity(0);
@@ -66,7 +64,7 @@ public class LightningLightBlock extends TemplateBlockBase {
 	}
 	
 	@Override
-	public HitResult getHitResult(Level level, int x, int y, int z, Vec3f arg1, Vec3f arg2) {
+	public HitResult getHitResult(Level level, int x, int y, int z, Vec3D arg1, Vec3D arg2) {
 		return null;
 	}
 	

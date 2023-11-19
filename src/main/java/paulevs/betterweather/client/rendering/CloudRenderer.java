@@ -4,9 +4,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.level.Level;
-import net.minecraft.util.maths.Vec2i;
+import net.minecraft.util.maths.Vec2I;
 import net.minecraft.util.noise.PerlinNoise;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
@@ -34,7 +34,7 @@ public class CloudRenderer {
 	
 	private final CloudChunk[] chunks = new CloudChunk[CAPACITY];
 	private final FrustumCulling culling = new FrustumCulling();
-	private final Vec2i[] offsets;
+	private final Vec2I[] offsets;
 	
 	private CloudTexture cloudTexture;
 	
@@ -43,10 +43,10 @@ public class CloudRenderer {
 			chunks[i] = new CloudChunk();
 		}
 		
-		List<Vec2i> offsets = new ArrayList<>(CAPACITY);
+		List<Vec2I> offsets = new ArrayList<>(CAPACITY);
 		for (byte x = -RADIUS; x <= RADIUS; x++) {
 			for (byte z = -RADIUS; z <= RADIUS; z++) {
-				offsets.add(new Vec2i(x, z));
+				offsets.add(new Vec2I(x, z));
 			}
 		}
 		offsets.sort((v1, v2) -> {
@@ -54,7 +54,7 @@ public class CloudRenderer {
 			int d2 = v2.x * v2.x + v2.z * v2.z;
 			return Integer.compare(d1, d2);
 		});
-		this.offsets = offsets.toArray(Vec2i[]::new);
+		this.offsets = offsets.toArray(Vec2I[]::new);
 		culling.setFOV((float) Math.toRadians(60F));
 	}
 	
@@ -93,7 +93,7 @@ public class CloudRenderer {
 		float distance = fogDistance * 1.5F;
 		distance *= distance;
 		
-		for (Vec2i offset : offsets) {
+		for (Vec2I offset : offsets) {
 			int cx = centerX + offset.x;
 			int cz = centerZ + offset.z;
 			int movedZ = cz - worldOffset;
@@ -140,7 +140,7 @@ public class CloudRenderer {
 			else {
 				CLOUD_DATA[index] = (short) ((byte) (rainFront * 15) << 4);
 				byte thunder = (byte) (WeatherAPI.sampleThunderstorm(level, x, z, 0.1) * rainFront * 15);
-				CLOUD_DATA[index] |= thunder << 8;
+				CLOUD_DATA[index] |= (short) (thunder << 8);
 			}
 		});
 		
@@ -162,7 +162,7 @@ public class CloudRenderer {
 			}
 			
 			if (light > 0) {
-				light -= NOISE.sample(x * 0.3, y * 0.3, z * 0.3);
+				light = (byte) (light - NOISE.sample(x * 0.3, y * 0.3, z * 0.3));
 			}
 			
 			CLOUD_DATA[index] |= light;

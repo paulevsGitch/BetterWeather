@@ -2,14 +2,14 @@ package paulevs.betterweather.client.rendering;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BaseBlock;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.level.Level;
 import net.minecraft.util.maths.MathHelper;
-import net.minecraft.util.maths.Vec3f;
+import net.minecraft.util.maths.Vec3D;
 import org.lwjgl.opengl.GL11;
 import paulevs.betterweather.api.WeatherAPI;
 import paulevs.betterweather.config.CommonConfig;
@@ -60,8 +60,8 @@ public class WeatherRenderer {
 		if (iy - rainTop > 40) return;
 		
 		float vOffset = (float) (((double) level.getLevelTime() + delta) * 0.05 % 1.0);
-		Vec3f pos = getPosition(entity);
-		Vec3f dir = getViewDirection(entity);
+		Vec3D pos = getPosition(entity);
+		Vec3D dir = getViewDirection(entity);
 		
 		Tessellator tessellator = Tessellator.INSTANCE;
 		
@@ -141,7 +141,7 @@ public class WeatherRenderer {
 		GL11.glAlphaFunc(GL11.GL_GREATER, 0.1f);
 	}
 	
-	private void renderLargeSection(Level level, int x, int y, int z, Vec3f pos, Vec3f dir, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
+	private void renderLargeSection(Level level, int x, int y, int z, Vec3D pos, Vec3D dir, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
 		int terrain = WeatherAPI.getRainHeight(level, x, z);
 		if (terrain - y > 40) return;
 		
@@ -191,7 +191,7 @@ public class WeatherRenderer {
 		tessellator.vertex(x2, terrain, z2, u2, v1);
 	}
 	
-	private void renderNormalSection(Level level, int x, int y, int z, Vec3f pos, Vec3f dir, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
+	private void renderNormalSection(Level level, int x, int y, int z, Vec3D pos, Vec3D dir, int rainTop, Tessellator tessellator, float vOffset, boolean snow) {
 		int terrain = WeatherAPI.getRainHeight(level, x, z);
 		if (terrain - y > 40) return;
 		
@@ -241,11 +241,11 @@ public class WeatherRenderer {
 		tessellator.vertex(x2, terrain, z2, u2, v1);
 	}
 	
-	private void renderWaterCircles(Level level, int x, int y, int z, Vec3f pos, Vec3f dir, Tessellator tessellator, float vOffset, float radius) {
+	private void renderWaterCircles(Level level, int x, int y, int z, Vec3D pos, Vec3D dir, Tessellator tessellator, float vOffset, float radius) {
 		int height = level.getHeight(x, z);
 		if (height - y > 40 || y - height > 40) return;
 		if (!pointIsVisible(pos, dir, x + 0.5, height, z + 0.5)) return;
-		if (!level.getBlockState(x, height - 1, z).isOf(BaseBlock.STILL_WATER)) return;
+		if (!level.getBlockState(x, height - 1, z).isOf(Block.STILL_WATER)) return;
 		if (!WeatherAPI.isRaining(level, x, height, z)) return;
 		
 		float dx = (float) (x - pos.x);
@@ -282,11 +282,11 @@ public class WeatherRenderer {
 		tessellator.vertex(x + 1, height, z, u2, v1);
 	}
 	
-	private Vec3f getPosition(LivingEntity entity) {
-		return Vec3f.getFromCacheAndSet(entity.x, entity.y, entity.z);
+	private Vec3D getPosition(LivingEntity entity) {
+		return Vec3D.getFromCacheAndSet(entity.x, entity.y, entity.z);
 	}
 	
-	private Vec3f getViewDirection(LivingEntity entity) {
+	private Vec3D getViewDirection(LivingEntity entity) {
 		float yaw = entity.prevYaw + (entity.yaw - entity.prevYaw);
 		float pitch = entity.prevPitch + (entity.pitch - entity.prevPitch);
 		
@@ -295,14 +295,14 @@ public class WeatherRenderer {
 		float sinYaw = MathHelper.sin(yaw);
 		float cosPitch = -MathHelper.cos(-pitch * TO_RADIANS);
 		
-		return Vec3f.getFromCacheAndSet(
+		return Vec3D.getFromCacheAndSet(
 			sinYaw * cosPitch,
 			(MathHelper.sin(-pitch * ((float) Math.PI / 180))),
 			cosYaw * cosPitch
 		);
 	}
 	
-	private boolean pointIsVisible(Vec3f position, Vec3f normal, double x, double y, double z) {
+	private boolean pointIsVisible(Vec3D position, Vec3D normal, double x, double y, double z) {
 		return normal.x * (x - position.x) + normal.y * (y - position.y) + normal.z * (z - position.z) > 0;
 	}
 }

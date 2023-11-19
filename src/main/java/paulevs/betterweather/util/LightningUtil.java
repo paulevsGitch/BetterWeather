@@ -1,6 +1,6 @@
 package paulevs.betterweather.util;
 
-import net.minecraft.entity.LightningEntity;
+import net.minecraft.entity.technical.LightningEntity;
 import net.minecraft.level.Level;
 import paulevs.betterweather.api.WeatherAPI;
 import paulevs.betterweather.config.CommonConfig;

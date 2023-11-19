@@ -2,7 +2,7 @@ package paulevs.betterweather.mixin.client;
 
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.LightningRenderer;
-import net.minecraft.entity.LightningEntity;
+import net.minecraft.entity.technical.LightningEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
