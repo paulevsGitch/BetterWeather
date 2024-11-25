@@ -6,7 +6,7 @@
 	"client": [
 		"LightningRendererMixin",
 		"FogRendererImplMixin",
-		"BaseDimensionMixin",
+		"DimensionMixin",
 		"LevelRendererMixin",
 		"GameRendererMixin",
 		"GameOptionsMixin",

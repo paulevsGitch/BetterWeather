@@ -54,7 +54,7 @@ public class LightningLightBlock extends TemplateBlock {
 	}
 	
 	@Override
-	public boolean isCollidable(int meta, boolean flag) {
+	public boolean isSelectable(int meta, boolean flag) {
 		return false;
 	}
 	

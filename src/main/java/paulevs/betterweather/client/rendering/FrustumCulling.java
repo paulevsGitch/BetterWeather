@@ -2,7 +2,7 @@ package paulevs.betterweather.client.rendering;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.maths.MathHelper;
+import net.minecraft.util.maths.MCMath;
 import net.modificationstation.stationapi.api.util.math.Quaternion;
 import net.modificationstation.stationapi.api.util.math.Vec3f;
 
@@ -55,12 +55,12 @@ public class FrustumCulling {
 	
 	private void setRotation(Quaternion rotation, Vec3f axis, float angle) {
 		angle *= 0.5F;
-		float sin = MathHelper.sin(angle);
+		float sin = MCMath.sin(angle);
 		rotation.set(
 			axis.getX() * sin,
 			axis.getY() * sin,
 			axis.getZ() * sin,
-			MathHelper.cos(angle)
+			MCMath.cos(angle)
 		);
 	}
 	

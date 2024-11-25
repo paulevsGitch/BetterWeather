@@ -83,7 +83,7 @@ public class BetterWeatherRenderer {
 		);
 		
 		if (inCloud > 0) {
-			Vec3D fogColor = minecraft.level.getSunPosition(delta);
+			Vec3D fogColor = minecraft.level.getSkyColor(delta);
 			fogDistance = MathHelper.lerp(inCloud, fogDistance, 0.02F);
 			fogColorR = MathHelper.lerp(inCloud, fogColorR, (float) fogColor.x);
 			fogColorG = MathHelper.lerp(inCloud, fogColorG, (float) fogColor.y);

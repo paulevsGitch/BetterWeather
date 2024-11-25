@@ -8,7 +8,7 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.level.Level;
-import net.minecraft.util.maths.MathHelper;
+import net.minecraft.util.maths.MCMath;
 import net.minecraft.util.maths.Vec3D;
 import org.lwjgl.opengl.GL11;
 import paulevs.betterweather.api.WeatherAPI;
@@ -47,9 +47,9 @@ public class WeatherRenderer {
 		double y = net.modificationstation.stationapi.api.util.math.MathHelper.lerp(delta, entity.prevRenderY, entity.y);
 		double z = net.modificationstation.stationapi.api.util.math.MathHelper.lerp(delta, entity.prevRenderZ, entity.z);
 		
-		int ix = MathHelper.floor(entity.x);
-		int iy = MathHelper.floor(entity.y);
-		int iz = MathHelper.floor(entity.z);
+		int ix = MCMath.floor(entity.x);
+		int iy = MCMath.floor(entity.y);
+		int iz = MCMath.floor(entity.z);
 		
 		int radius = minecraft.options.fancyGraphics ? 10 : 5;
 		int radiusCenter = radius / 2 - 1;
@@ -94,7 +94,7 @@ public class WeatherRenderer {
 			}
 		}
 		
-		tessellator.draw();
+		tessellator.render();
 		
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, waterCircles);
 		vOffset = (float) (((double) level.getLevelTime() + delta) * 0.07 % 1.0);
@@ -109,7 +109,7 @@ public class WeatherRenderer {
 			}
 		}
 		
-		tessellator.draw();
+		tessellator.render();
 		
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, snowTexture);
 		vOffset = (float) (((double) level.getLevelTime() + delta) * 0.002 % 1.0);
@@ -134,7 +134,7 @@ public class WeatherRenderer {
 		}
 		
 		tessellator.setOffset(0.0, 0.0, 0.0);
-		tessellator.draw();
+		tessellator.render();
 		
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glDisable(GL11.GL_BLEND);
@@ -168,7 +168,7 @@ public class WeatherRenderer {
 		float dz = (float) (pos.z - (z + 0.5));
 		float l = dx * dx + dz * dz;
 		if (l > 0) {
-			l = MathHelper.sqrt(l) / 0.5F;
+			l = MCMath.sqrt(l) / 0.5F;
 			dx /= l;
 			dz /= l;
 			float v = dx;
@@ -218,7 +218,7 @@ public class WeatherRenderer {
 		float dz = (float) (pos.z - (z + 0.5));
 		float l = dx * dx + dz * dz;
 		if (l > 0) {
-			l = MathHelper.sqrt(l) / 0.5F;
+			l = MCMath.sqrt(l) / 0.5F;
 			dx /= l;
 			dz /= l;
 			float v = dx;
@@ -251,7 +251,7 @@ public class WeatherRenderer {
 		float dx = (float) (x - pos.x);
 		float dy = (float) (y - pos.y);
 		float dz = (float) (z - pos.z);
-		float alpha = 1F - MathHelper.sqrt(dx * dx + dy * dy + dz * dz) / radius;
+		float alpha = 1F - MCMath.sqrt(dx * dx + dy * dy + dz * dz) / radius;
 		alpha = alpha * 4F;
 		if (alpha <= 0.01F) return;
 		if (alpha > 1F) alpha = 1F;
@@ -261,7 +261,7 @@ public class WeatherRenderer {
 		float u1 = 0;
 		float u2 = 1;
 		vOffset += randomOffset[(x & 15) << 4 | (z & 15)];
-		float v1 = MathHelper.floor(vOffset * 6F) / 6F;
+		float v1 = MCMath.floor(vOffset * 6F) / 6F;
 		float v2 = v1 + 1F / 6F;
 		
 		byte index = randomIndex[(x & 15) << 4 | (z & 15)];
@@ -291,13 +291,13 @@ public class WeatherRenderer {
 		float pitch = entity.prevPitch + (entity.pitch - entity.prevPitch);
 		
 		yaw = -yaw * TO_RADIANS - (float) Math.PI;
-		float cosYaw = MathHelper.cos(yaw);
-		float sinYaw = MathHelper.sin(yaw);
-		float cosPitch = -MathHelper.cos(-pitch * TO_RADIANS);
+		float cosYaw = MCMath.cos(yaw);
+		float sinYaw = MCMath.sin(yaw);
+		float cosPitch = -MCMath.cos(-pitch * TO_RADIANS);
 		
 		return Vec3D.getFromCacheAndSet(
 			sinYaw * cosPitch,
-			(MathHelper.sin(-pitch * ((float) Math.PI / 180))),
+			(MCMath.sin(-pitch * ((float) Math.PI / 180))),
 			cosYaw * cosPitch
 		);
 	}

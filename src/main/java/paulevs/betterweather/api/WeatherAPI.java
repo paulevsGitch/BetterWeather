@@ -5,6 +5,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.level.Level;
 import net.minecraft.level.chunk.Chunk;
 import net.minecraft.level.dimension.Dimension;
+import net.minecraft.util.maths.MCMath;
 import net.minecraft.util.maths.Vec2I;
 import net.modificationstation.stationapi.api.block.BlockState;
 import net.modificationstation.stationapi.api.registry.DimensionContainer;
@@ -58,9 +59,9 @@ public class WeatherAPI {
 	
 	public static float inCloud(Level level, double x, double y, double z) {
 		z -= level.getLevelTime() * CommonConfig.getCloudsSpeed() * 32;
-		int x1 = net.minecraft.util.maths.MathHelper.floor(x / 2.0) << 1;
-		int y1 = net.minecraft.util.maths.MathHelper.floor(y / 2.0) << 1;
-		int z1 = net.minecraft.util.maths.MathHelper.floor(z / 2.0) << 1;
+		int x1 = MCMath.floor(x / 2.0) << 1;
+		int y1 = MCMath.floor(y / 2.0) << 1;
+		int z1 = MCMath.floor(z / 2.0) << 1;
 		
 		int x2 = x1 + 2;
 		int y2 = y1 + 2;
@@ -163,9 +164,9 @@ public class WeatherAPI {
 	}
 	
 	public static float getRainDensity(Level level, double x, double y, double z, boolean includeSnow) {
-		int x1 = net.minecraft.util.maths.MathHelper.floor(x);
-		int y1 = net.minecraft.util.maths.MathHelper.floor(y);
-		int z1 = net.minecraft.util.maths.MathHelper.floor(z);
+		int x1 = MCMath.floor(x);
+		int y1 = MCMath.floor(y);
+		int z1 = MCMath.floor(z);
 		int x2 = x1 + 1;
 		int z2 = z1 + 1;
 		

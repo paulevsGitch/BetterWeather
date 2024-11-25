@@ -1,6 +1,6 @@
 package paulevs.betterweather.util;
 
-import net.minecraft.util.maths.MathHelper;
+import net.minecraft.util.maths.MCMath;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -39,8 +39,8 @@ public class ImageSampler {
 	}
 	
 	public float sample(double x, double z) {
-		int x1 = MathHelper.floor(x);
-		int z1 = MathHelper.floor(z);
+		int x1 = MCMath.floor(x);
+		int z1 = MCMath.floor(z);
 		int x2 = MathUtil.wrap(x1 + 1, width);
 		int z2 = MathUtil.wrap(z1 + 1, height);
 		float dx = (float) (x - x1);

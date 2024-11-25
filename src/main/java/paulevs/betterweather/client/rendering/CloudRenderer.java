@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.living.LivingEntity;
 import net.minecraft.level.Level;
+import net.minecraft.util.maths.MCMath;
 import net.minecraft.util.maths.Vec2I;
 import net.minecraft.util.noise.PerlinNoise;
 import net.modificationstation.stationapi.api.util.math.MathHelper;
@@ -75,8 +76,8 @@ public class CloudRenderer {
 		double entityZ = MathHelper.lerp(delta, entity.prevRenderZ, entity.z);
 		float height = (float) (minecraft.level.dimension.getCloudHeight() - entityY);
 		
-		int centerX = net.minecraft.util.maths.MathHelper.floor(entityX / 32);
-		int centerZ = net.minecraft.util.maths.MathHelper.floor(entityZ / 32);
+		int centerX = MCMath.floor(entityX / 32);
+		int centerZ = MCMath.floor(entityZ / 32);
 		
 		double moveDelta = ((double) minecraft.level.getLevelTime() + delta) * CommonConfig.getCloudsSpeed();
 		int worldOffset = (int) Math.floor(moveDelta);
@@ -86,7 +87,7 @@ public class CloudRenderer {
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		
-		cloudTexture.bindAndUpdate(minecraft.level.getSunPosition(delta));
+		cloudTexture.bindAndUpdate(minecraft.level.getSkyColor(delta));
 		culling.rotate(entity.yaw, entity.pitch);
 		
 		boolean canUpdate = true;

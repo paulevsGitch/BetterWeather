@@ -98,7 +98,7 @@ public class CloudChunk {
 			isEmpty = false;
 		}
 		
-		tessellator.draw();
+		tessellator.render();
 		GL11.glEndList();
 	}
 	

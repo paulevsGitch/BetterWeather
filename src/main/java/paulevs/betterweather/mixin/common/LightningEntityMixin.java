@@ -3,7 +3,7 @@ package paulevs.betterweather.mixin.common;
 import net.minecraft.entity.technical.AbstractLightning;
 import net.minecraft.entity.technical.LightningEntity;
 import net.minecraft.level.Level;
-import net.minecraft.util.maths.MathHelper;
+import net.minecraft.util.maths.MCMath;
 import net.modificationstation.stationapi.api.block.States;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -27,8 +27,8 @@ public abstract class LightningEntityMixin extends AbstractLightning {
 	
 	@ModifyConstant(method = "<init>", constant = @Constant(intValue = 2, ordinal = 1))
 	private int betterweather_disableFireInInit(int constant) {
-		int px = MathHelper.floor(this.x);
-		int pz = MathHelper.floor(this.z);
+		int px = MCMath.floor(this.x);
+		int pz = MCMath.floor(this.z);
 		int py = WeatherAPI.getRainHeight(level, px, pz) - 1;
 		betterweather_isOnRod = level.getBlockState(px, py, pz).isIn(WeatherTags.LIGHTNING_ROD);
 		return betterweather_isOnRod ? 200 : constant;
@@ -41,9 +41,9 @@ public abstract class LightningEntityMixin extends AbstractLightning {
 	
 	@Inject(method = "<init>", at = @At("TAIL"))
 	private void betterweather_onInit(Level level, double x, double y, double z, CallbackInfo info) {
-		int px = MathHelper.floor(this.x);
-		int py = MathHelper.floor(this.y);
-		int pz = MathHelper.floor(this.z);
+		int px = MCMath.floor(this.x);
+		int py = MCMath.floor(this.y);
+		int pz = MCMath.floor(this.z);
 		if (level.getBlockState(px, py, pz).isAir()) {
 			level.setBlockState(px, py, pz, CommonListener.lightningLight.getDefaultState());
 			level.updateArea(px - 15, py - 15, pz - 15, px + 15, py + 15, pz + 15);
@@ -55,9 +55,9 @@ public abstract class LightningEntityMixin extends AbstractLightning {
 		target = "Lnet/minecraft/entity/technical/LightningEntity;remove()V"
 	))
 	private void betterweather_onRemove(CallbackInfo info) {
-		int px = MathHelper.floor(this.x);
-		int py = MathHelper.floor(this.y);
-		int pz = MathHelper.floor(this.z);
+		int px = MCMath.floor(this.x);
+		int py = MCMath.floor(this.y);
+		int pz = MCMath.floor(this.z);
 		if (level.getBlockState(px, py, pz).isOf(CommonListener.lightningLight)) {
 			level.setBlockState(px, py, pz, States.AIR.get());
 			level.updateArea(px - 15, py - 15, pz - 15, px + 15, py + 15, pz + 15);

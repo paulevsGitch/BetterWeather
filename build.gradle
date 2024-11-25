@@ -1,6 +1,7 @@
 plugins {
-	id 'babric-loom' version '0.12.10'
-	id 'maven-publish'
+	id "fabric-loom" version "1.6.2"
+	id "babric-loom-extension" version "1.6.9"
+	id "maven-publish"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -11,43 +12,34 @@ version = project.mod_version
 group = project.maven_group
 
 loom {
-	gluedMinecraftJar()
+	mixin {
+		useLegacyMixinAp = true
+	}
 	customMinecraftManifest.set("https://babric.github.io/manifest-polyfill/${minecraft_version}.json")
+	intermediaryUrl.set("https://maven.glass-launcher.net/babric/babric/intermediary/%1\$s/intermediary-%1\$s-v2.jar")
 }
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
-
-	// Used for the fabric toolchain in this project.
 	maven {
-		name = 'Babric'
-		url = 'https://maven.glass-launcher.net/babric'
+		name = "Babric"
+		url = "https://maven.glass-launcher.net/babric"
 	}
-	// Used for mappings.
 	maven {
-		name = 'Glass Releases'
-		url = 'https://maven.glass-launcher.net/releases'
+		name = "Glass Releases"
+		url = "https://maven.glass-launcher.net/releases"
 	}
-	// Used for StationAPI and HowManyItems.
 	maven {
-		name = 'Glass Snapshots'
-		url = 'https://maven.glass-launcher.net/snapshots'
+		name = "Glass Snapshots"
+		url = "https://maven.glass-launcher.net/snapshots"
 	}
-	// Used for a StationAPI dependency.
 	maven {
-		name = 'Froge'
-		url 'https://maven.minecraftforge.net/'
+		name = "Froge"
+		url "https://maven.minecraftforge.net/"
 	}
-	// Used for projects that do not have a maven repository, but do have a GitHub repository with working build scripts.
 	maven {
-		name = 'Jitpack'
-		url = 'https://jitpack.io'
+		name = "Jitpack"
+		url = "https://jitpack.io"
 	}
-	// Used for another StationAPI dependency
 	exclusiveContent {
 		forRepository {
 			maven {
@@ -61,18 +53,18 @@ repositories {
 	}
 	mavenCentral()
 	flatDir {
-		dirs 'libs'
+		dirs "libs"
 	}
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "com.github.paulevsGitch:BIN-Mappings-BH:${project.mappings}"
 	modImplementation "babric:fabric-loader:${project.loader_version}"
 
 	implementation "org.slf4j:slf4j-api:1.8.0-beta4"
 	implementation "org.apache.logging.log4j:log4j-slf4j18-impl:2.17.2"
+	implementation "blue.endless:jankson:1.2.1"
 
 	modImplementation "net.modificationstation:StationAPI:${project.stapi_version}"
 	

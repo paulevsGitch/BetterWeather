@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.technical.LightningEntity;
-import net.minecraft.util.maths.MathHelper;
+import net.minecraft.util.maths.MCMath;
 import org.lwjgl.opengl.GL11;
 import paulevs.betterweather.config.CommonConfig;
 
@@ -31,7 +31,7 @@ public class BWLightningRenderer {
 		float dz = z;
 		float l = dx * dx + dz * dz;
 		if (l > 0) {
-			l = MathHelper.sqrt(l) / 0.5F;
+			l = MCMath.sqrt(l) / 0.5F;
 			dx /= l;
 			dz /= l;
 			float v = dx;
@@ -52,7 +52,7 @@ public class BWLightningRenderer {
 		float z1_2 = z + 0.5F + dz * 0.5F;
 		float z2_2 = z + 0.5F - dz * 0.5F;
 		
-		int sectionCount = MathHelper.floor((y2 - y) / 8F + 1);
+		int sectionCount = MCMath.floor((y2 - y) / 8F + 1);
 		float secDelta = (y2 - y) / sectionCount;
 		
 		GL11.glDisable(GL11.GL_CULL_FACE);
@@ -114,7 +114,7 @@ public class BWLightningRenderer {
 			y = y2;
 		}
 		
-		tessellator.draw();
+		tessellator.render();
 		
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_LIGHTING);
